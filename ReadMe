@@ -1,0 +1,4 @@
+First Check Gradle version and down grade gradle
+
+./gradlew --versio
+ ./gradlew wrapper --gradle-version 8.7
