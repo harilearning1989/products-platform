@@ -9,10 +9,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableConfigurationProperties(SecurityProperties.class)
-public class ProductApplication {
+public class ProductGatewayApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ProductApplication.class, args);
+		SpringApplication.run(ProductGatewayApplication.class, args);
 	}
 
 }

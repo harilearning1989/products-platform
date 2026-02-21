@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "gateway.security")
 public record SecurityProperties(
         boolean login,
-        boolean user,
+        boolean customer,
         boolean product,
         boolean order,
         boolean payment,

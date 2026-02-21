@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Set;
 
 public class JwtUtil {
 
@@ -19,10 +20,11 @@ public class JwtUtil {
 
     private static final long EXPIRATION_TIME = 10000 * 60 * 60;
 
-    public static String generateToken(String username, String role) {
+    public static String generateToken(String username, Set<String> roles) {
         return Jwts.builder()
                 .setSubject(username)
-                .claim("roles", role)
+                //.claim("roles", role)
+                .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)

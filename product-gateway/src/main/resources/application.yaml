@@ -24,7 +24,7 @@ eureka:
 gateway:
   security:
     login: false
-    user: true
+    customer: false
     product: true
     order: true
     payment: true

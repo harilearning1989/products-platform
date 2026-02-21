@@ -46,11 +46,11 @@ public class SecurityConfig {
                     }
 
                     // USER
-                    if (!securityProperties.user()) {
-                        exchanges.pathMatchers("/users/**").permitAll();
+                    if (!securityProperties.customer()) {
+                        exchanges.pathMatchers("/customers/**").permitAll();
                     } else {
-                        exchanges.pathMatchers("/users/**")
-                                .hasAnyRole("USER", "ADMIN");
+                        exchanges.pathMatchers("/customers/**")
+                                .hasAnyRole("CUSTOMER", "ADMIN");
                     }
 
                     // PRODUCT
@@ -106,7 +106,7 @@ public class SecurityConfig {
                         exchanges.pathMatchers("/employees/**").permitAll();
                     } else {
                         exchanges.pathMatchers("/employees/**")
-                                .hasRole("ADMIN");
+                                .hasRole("EMPLOYEE");
                     }
 
                     exchanges.anyExchange().authenticated();

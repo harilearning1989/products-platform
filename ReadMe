@@ -2,3 +2,50 @@ First Check Gradle version and down grade gradle
 
 ./gradlew --versio
  ./gradlew wrapper --gradle-version 8.7
+
+
+ Services
+products-platform/
+├── service-registry/
+├── config-server/
+├── api-gateway/
+├── user-service/
+├── product-service/
+├── order-service/
+├── payment-service/
+├── payment-history-service/
+├── inventory-service/
+├── notification-service/
+login-service
+
+
+product-service → product_db
+
+user-service → user_db
+
+payment-service → payment_db
+
+==================================
+
+Real-Time Flow Example
+
+User buys product:
+
+User → Gateway
+
+Gateway → order-service
+
+order-service:
+
+Calls product-service
+
+Calls payment-service
+
+payment-service publishes event
+
+inventory-service updates stock
+
+notification-service sends email
+
+payment-history-service logs transaction
+============================================

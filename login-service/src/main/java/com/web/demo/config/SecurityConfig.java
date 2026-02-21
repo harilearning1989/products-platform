@@ -2,6 +2,8 @@ package com.web.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,11 +24,25 @@ public class SecurityConfig {
                         .password(encoder.encode("admin123"))
                         .roles("ADMIN")
                         .build(),
-                User.withUsername("user")
-                        .password(encoder.encode("user123"))
-                        .roles("USER")
+
+                User.withUsername("employee")
+                        .password(encoder.encode("employee123"))
+                        .roles("EMPLOYEE")
+                        .build(),
+
+                User.withUsername("customer")
+                        .password(encoder.encode("customer123"))
+                        .roles("CUSTOMER")
                         .build()
         );
+    }
+
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.fromHierarchy("""
+        ROLE_ADMIN > ROLE_EMPLOYEE
+        ROLE_EMPLOYEE > ROLE_CUSTOMER
+        """);
     }
 
     @Bean

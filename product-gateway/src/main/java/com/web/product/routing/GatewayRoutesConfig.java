@@ -28,16 +28,16 @@ public class GatewayRoutesConfig {
                 )
 
                 // USER SERVICE
-                .route("user-service", r -> r
-                        .path("/users/**")
+                .route("customer-service", r -> r
+                        .path("/customers/**")
                         .filters(f -> f
-                                .addRequestHeader("X-Gateway", "User-Service")
+                                .addRequestHeader("X-Gateway", "Customer-Service")
                                 .circuitBreaker(config -> config
-                                        .setName("userServiceCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/users")
+                                        .setName("customerServiceCircuitBreaker")
+                                        .setFallbackUri("forward:/fallback/customers")
                                 )
                         )
-                        .uri("lb://USER-SERVICE")
+                        .uri("lb://CUSTOMER-SERVICE")
                 )
 
                 // PRODUCT SERVICE
