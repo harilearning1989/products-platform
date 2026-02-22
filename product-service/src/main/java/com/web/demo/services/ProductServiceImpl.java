@@ -6,6 +6,7 @@ import com.web.demo.dtos.ProductResponse;
 import com.web.demo.exceptions.ProductNotFoundException;
 import com.web.demo.exceptions.ResourceNotFoundException;
 import com.web.demo.models.Product;
+import com.web.demo.producer.ProductEventProducer;
 import com.web.demo.reader.JsonFileReader;
 import com.web.demo.records.ProductDto;
 import com.web.demo.repos.ProductRepository;
@@ -30,6 +31,7 @@ public class ProductServiceImpl implements ProductService{
     private List<ProductDto> products;
 
     private ProductRepository repository;
+    private ProductEventProducer producer;
 
     public ProductServiceImpl(JsonFileReader jsonFileReader,
                               ProductRepository repository) {
@@ -76,6 +78,9 @@ public class ProductServiceImpl implements ProductService{
                 .description(request.description())
                 .active(true)
                 .build());
+
+        // Publish event after save
+        producer.publishProductCreated(product.getId(), product.getName());
 
         return mapToResponse(product);
     }
