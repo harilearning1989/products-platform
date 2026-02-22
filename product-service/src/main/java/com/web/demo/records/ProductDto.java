@@ -2,7 +2,7 @@ package com.web.demo.records;
 
 import java.util.List;
 
-public record Product(
+public record ProductDto(
         Long id,
         String name,
         int vendor_id,

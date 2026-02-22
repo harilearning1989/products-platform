@@ -20,11 +20,11 @@ gateway:
   security:
     login: false
     customer: false
-    product: true
-    order: true
-    payment: true
-    paymentHistory: true
-    inventory: true
-    notification: true
-    employee: true
+    product: false
+    order: false
+    payment: false
+    paymentHistory: false
+    inventory: false
+    notification: false
+    employee: false
     enabled: true
