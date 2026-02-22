@@ -1,11 +1,11 @@
 spring:
   application:
-    name: login-service
+    name: payment-history-service
   main:
     banner-mode: off
 
 server:
-  port: 8085
+  port: 8088
 
 eureka:
   client:

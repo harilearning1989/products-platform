@@ -1,11 +1,11 @@
 spring:
   application:
-    name: login-service
+    name: notification-service
   main:
     banner-mode: off
 
 server:
-  port: 8085
+  port: 8086
 
 eureka:
   client:

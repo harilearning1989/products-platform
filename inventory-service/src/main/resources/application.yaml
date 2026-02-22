@@ -1,11 +1,11 @@
 spring:
   application:
-    name: login-service
+    name: inventory-service
   main:
     banner-mode: off
 
 server:
-  port: 8085
+  port: 8084
 
 eureka:
   client:
