@@ -3,11 +3,6 @@ spring:
     name: product-gateway
   main:
     banner-mode: off
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          public-key-location: classpath:public.pem
 
 server:
   port: 8081
@@ -33,15 +28,3 @@ gateway:
     notification: true
     employee: true
     enabled: true
-
-resilience4j:
-  circuitbreaker:
-    instances:
-      product-service:
-        slidingWindowSize: 10
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-      payment-service:
-        slidingWindowSize: 10
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s

@@ -21,6 +21,11 @@ public class AuthRestController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @GetMapping("/hello")
+    public String login() {
+        return "hello";
+    }
+
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
         try {

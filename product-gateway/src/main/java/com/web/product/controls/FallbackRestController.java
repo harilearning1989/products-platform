@@ -32,13 +32,29 @@ public class FallbackRestController {
     }
 
     @PostMapping("/fallback/auth")
-    public Mono<ProblemDetail> authFallback(ServerWebExchange exchange) {
+    public Map<String, String> paymentFallback1() {
+        return Map.of(
+                "message", "Payment service is temporarily unavailable",
+                "status", "FAILED"
+        );
+    }
+
+    @GetMapping("/fallback/auth")
+    public Map<String, String> paymentFallback2() {
+        return Map.of(
+                "message", "Payment service is temporarily unavailable",
+                "status", "FAILED"
+        );
+    }
+
+    @PostMapping("/fallback/auth1")
+    public Mono<ProblemDetail> authFallback() {
 
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.SERVICE_UNAVAILABLE);
 
         problem.setTitle("Login Service Unavailable");
         problem.setDetail("Authentication service is temporarily unavailable. Please try again later.");
-        problem.setInstance(URI.create(exchange.getRequest().getURI().getPath()));
+        //problem.setInstance(URI.create(exchange.getRequest().getURI().getPath()));
 
         // Custom properties (very useful in production)
         problem.setProperty("timestamp", Instant.now());

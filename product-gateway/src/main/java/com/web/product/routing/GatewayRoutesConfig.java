@@ -18,7 +18,7 @@ public class GatewayRoutesConfig {
                         .path("/auth/**")
                         .filters(f -> f
                                 .addRequestHeader("X-Gateway", "Login-Service")
-                                .removeRequestHeader("Cookie")
+                                //.removeRequestHeader("Cookie")
                                 .circuitBreaker(config -> config
                                         .setName("loginServiceCircuitBreaker")
                                         .setFallbackUri("forward:/fallback/auth")
