@@ -1,0 +1,7 @@
+Order Service
+      ↓ order-created
+Payment Service
+      ↓ payment-success / payment-failed
+Payment History Service (store immutable record)
+Notification Service
+Order Service (update status)

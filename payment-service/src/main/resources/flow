@@ -1,0 +1,41 @@
+Order Service
+     ↓ order-created
+Payment Service
+     ↓ payment-success / payment-failed
+Inventory Service
+Notification Service
+Order Service (update status)
+
+================================
+
+Production Improvements You Should Add
+
+🔥 Outbox pattern
+
+🔥 Retry with Dead Letter Topic
+
+🔥 Idempotency key from Order
+
+🔥 External payment gateway integration
+
+🔥 Payment timeout handling
+
+🔥 Saga orchestration
+
+🔥 Webhook handling
+
+🔥 Circuit breaker
+
+===============================
+
+If you want next:
+
+🔥 Complete Saga Orchestration
+
+🔥 Outbox Pattern Implementation
+
+🔥 Stripe Integration Example
+
+🔥 Payment Retry + DLQ setup
+
+🔥 Distributed transaction design

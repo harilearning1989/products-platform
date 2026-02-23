@@ -1,0 +1,34 @@
+End-to-End Flow
+
+Client → POST /orders
+
+Order saved
+
+Kafka order-created published
+
+Inventory Service listens
+
+Notification Service listens
+
+Payment Service listens
+
+===================
+Production-Level Features You Can Add
+
+🔥 Idempotency key
+
+🔥 Saga pattern
+
+🔥 Outbox pattern
+
+🔥 Validation annotations
+
+🔥 Pagination
+
+🔥 Order cancellation
+
+🔥 Circuit breaker
+
+🔥 Distributed tracing
+
+=======================
