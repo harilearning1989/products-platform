@@ -3,6 +3,25 @@ spring:
     name: product-service
   main:
     banner-mode: off
+  datasource:
+    url: jdbc:postgresql://localhost:30432/products
+    username: hari
+    password: dudkrish1A
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 server:
   port: 8090
@@ -15,8 +34,3 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
-
-kafka:
-  bootstrap-servers: localhost:9092
-  producer:
-    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

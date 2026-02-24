@@ -49,3 +49,14 @@ notification-service sends email
 
 payment-history-service logs transaction
 ============================================
+
+Postgres Connection
+In DBeaver:
+Driver: PostgreSQL
+Host: 127.0.0.1. or localhost
+Port: 30432
+Database: products
+Username: hari
+Password: dudkrish1A
+
+===========================================
