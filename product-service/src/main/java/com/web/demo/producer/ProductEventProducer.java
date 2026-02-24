@@ -1,5 +1,6 @@
 package com.web.demo.producer;
 
+import com.web.demo.dtos.ProductCreateDto;
 import com.web.demo.dtos.ProductCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -14,8 +15,11 @@ public class ProductEventProducer {
     private static final String TOPIC = "product-created-topic";
 
     public void publishProductCreated(Long productId, String name) {
-        ProductCreatedEvent event =
-                new ProductCreatedEvent(productId, name);
-        kafkaTemplate.send(TOPIC, event);
+        /*ProductCreatedEvent event =
+                new ProductCreatedEvent(productId, name);*/
+        ProductCreateDto productCreateDto = new ProductCreateDto();
+        productCreateDto.setProductId(productId);
+        productCreateDto.setProductName(name);
+        kafkaTemplate.send(TOPIC, productCreateDto);
     }
 }

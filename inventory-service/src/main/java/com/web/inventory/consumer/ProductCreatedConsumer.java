@@ -1,6 +1,5 @@
 package com.web.inventory.consumer;
 
-import com.web.inventory.dtos.ProductCreatedEvent;
 import com.web.inventory.models.Inventory;
 import com.web.inventory.services.InventoryService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ public class ProductCreatedConsumer {
             groupId = "product-group"
     )
     public void consume(
-            ProductCreatedEvent event
+            Object event
     ) {
         /*
         @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
@@ -33,9 +32,10 @@ public class ProductCreatedConsumer {
          */
 
         // Business logic here
-        processProduct(event);
+        System.out.println("Received event: " + event);
+        //processProduct(event);
     }
-
+/*
     public void processProduct(ProductCreatedEvent event) {
         // Example business logic
         System.out.println("Processing product: " + event.productName());
@@ -51,5 +51,5 @@ public class ProductCreatedConsumer {
                 .build();
 
         inventoryService.saveInventory(inventory);
-    }
+    }*/
 }
