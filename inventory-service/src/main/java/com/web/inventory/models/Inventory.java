@@ -21,6 +21,9 @@ public class Inventory {
     @Column(nullable = false, unique = true)
     private Long productId;
 
+    @Column
+    private String productName;
+
     @Column(nullable = false)
     private Integer availableQuantity;
 

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -56,9 +58,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public InventoryDto release(Long productId, Integer quantity) {
-
         Inventory inventory = getInventoryEntity(productId);
-
         inventory.setAvailableQuantity(
                 inventory.getAvailableQuantity() + quantity
         );
@@ -68,6 +68,16 @@ public class InventoryServiceImpl implements InventoryService {
         );
 
         return mapToDto(inventory);
+    }
+
+    @Override
+    public void saveInventory(Inventory inventory) {
+        repository.save(inventory);
+    }
+
+    @Override
+    public boolean findByProductId(Long aLong) {
+        return repository.findByProductId(aLong).isPresent();
     }
 
     private Inventory getInventoryEntity(Long productId) {

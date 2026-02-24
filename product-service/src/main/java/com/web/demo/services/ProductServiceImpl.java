@@ -34,9 +34,11 @@ public class ProductServiceImpl implements ProductService{
     private ProductEventProducer producer;
 
     public ProductServiceImpl(JsonFileReader jsonFileReader,
-                              ProductRepository repository) {
+                              ProductRepository repository,
+                              ProductEventProducer producer) {
         this.jsonFileReader = jsonFileReader;
         this.repository = repository;
+        this.producer = producer;
     }
 
     @PostConstruct

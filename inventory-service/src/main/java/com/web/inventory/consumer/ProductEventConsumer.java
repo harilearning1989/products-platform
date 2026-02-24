@@ -24,7 +24,7 @@ public class ProductEventConsumer {
 
         Inventory inventory = Inventory.builder()
                 .productId(event.productId())
-                .availableQuantity(event.initialStock())
+                .availableQuantity(0)
                 .reservedQuantity(0)
                 .build();
 
