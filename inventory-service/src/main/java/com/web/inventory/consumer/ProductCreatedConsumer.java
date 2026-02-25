@@ -1,5 +1,6 @@
 package com.web.inventory.consumer;
 
+import com.web.inventory.dtos.ProductCreateDto;
 import com.web.inventory.models.Inventory;
 import com.web.inventory.services.InventoryService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class ProductCreatedConsumer {
             groupId = "product-group"
     )
     public void consume(
-            Object event
+            ProductCreateDto event
     ) {
         /*
         @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,

@@ -1,4 +1,4 @@
-package com.web.demo.dtos;
+package com.web.inventory.dtos;
 
 public record ProductCreateDto(
         Long productId,
