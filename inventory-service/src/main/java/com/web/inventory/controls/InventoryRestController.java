@@ -37,4 +37,21 @@ public class InventoryRestController {
             @RequestParam Integer quantity) {
         return service.release(productId, quantity);
     }
+/*
+    @PostMapping("/reserve")
+    public ReserveResponse reserve(@RequestBody ReserveRequest request) {
+
+        boolean reserved = inventoryService.reserveStock(
+                request.productId(),
+                request.quantity()
+        );
+
+        if (!reserved) {
+            return new ReserveResponse(false, "Insufficient stock",
+                    request.productId(), 0);
+        }
+
+        return new ReserveResponse(true, "Stock reserved",
+                request.productId(), request.quantity());
+    }*/
 }

@@ -2,6 +2,7 @@ CREATE TABLE inventory
 (
     id                 BIGSERIAL PRIMARY KEY,
     product_id         BIGINT    NOT NULL UNIQUE,
+    product_name               VARCHAR(200)   NOT NULL,
     available_quantity INT       NOT NULL CHECK (available_quantity >= 0),
     reserved_quantity  INT       NOT NULL DEFAULT 0 CHECK (reserved_quantity >= 0),
     version            INT,

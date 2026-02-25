@@ -60,3 +60,41 @@ Username: hari
 Password: dudkrish1A
 
 ===========================================
+
+Client
+   ↓
+API Gateway
+   ↓
+Order Service (create order)
+   ↓
+Inventory Service (RESERVE stock)
+   ↓
+Payment Service
+   ↓
+External Payment Gateway
+   ↓
+Order Service (CONFIRM order)
+   ↓
+Inventory Service (CONFIRM stock)
+   ↓
+Payment History Service
+   ↓
+Notification Service
+   ↓
+Response
+
+==========================================
+Client
+   ↓
+Order Controller
+   ↓
+Order Service
+   ↓
+Call product-service
+   ↓
+Call inventory-service (reserve)
+   ↓
+Save order (status = RESERVED)
+   ↓
+Return response
+=======================================

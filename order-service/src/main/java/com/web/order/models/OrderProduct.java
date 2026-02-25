@@ -2,44 +2,47 @@ package com.web.order.models;
 
 import com.web.order.enums.OrderStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
 
 @Entity
-@Table(name = "orders",
-        indexes = {
-                @Index(name = "idx_order_customer", columnList = "customerEmail"),
-                @Index(name = "idx_order_status", columnList = "status")
-        })
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
+@Table(name = "order_product")
+@Data
 @AllArgsConstructor
-public class Order {
+@NoArgsConstructor
+@Builder
+public class OrderProduct {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String customerEmail;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
+    @Column(name = "product_id", nullable = false)
+    private Long productId;
+
+    @Column(nullable = false)
+    private Integer quantity;
+
+    @Column(nullable = false)
+    private BigDecimal amount;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    private BigDecimal totalAmount;
-
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
-    @OneToMany(mappedBy = "order",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private List<OrderItem> items;
 
     @PrePersist
     public void prePersist() {
@@ -52,4 +55,5 @@ public class Order {
     public void preUpdate() {
         updatedAt = Instant.now();
     }
+
 }

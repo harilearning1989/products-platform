@@ -1,25 +1,26 @@
 package com.web.order.controls;
 
-import com.web.order.dtos.CreateOrderRequest;
-import com.web.order.dtos.OrderResponse;
+import com.web.order.dtos.OrderItemRequest;
+import com.web.order.dtos.OrderItemResponse;
 import com.web.order.services.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderRestController {
 
-    private final OrderService service;
+    private final OrderService orderService;
 
     @PostMapping
-    public OrderResponse create(@RequestBody CreateOrderRequest request) {
-        return service.createOrder(request);
+    public ResponseEntity<OrderItemResponse> createNewOrder(@RequestBody OrderItemRequest request) {
+        OrderItemResponse order = orderService.createNewOrder(request);
+        return ResponseEntity.ok(order);
     }
 
-    @GetMapping("/{id}")
-    public OrderResponse get(@PathVariable Long id) {
-        return service.getOrder(id);
-    }
 }

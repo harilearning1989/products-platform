@@ -1,9 +1,14 @@
 package com.web.order.dtos;
 
-import java.math.BigDecimal;
+import com.web.order.enums.OrderStatus;
 
 public record OrderItemResponse(
+        Long orderId,
+        Long userId,
         Long productId,
         Integer quantity,
-        BigDecimal price
+        Double totalAmount,
+        OrderStatus orderStatus,
+        String createdAt,
+        String updatedAt
 ) {}

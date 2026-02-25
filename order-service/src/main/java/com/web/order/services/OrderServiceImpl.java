@@ -1,83 +1,83 @@
 package com.web.order.services;
 
-import com.web.order.dtos.CreateOrderRequest;
-import com.web.order.dtos.OrderItemResponse;
-import com.web.order.dtos.OrderResponse;
-import com.web.order.models.Order;
-import com.web.order.models.OrderItem;
+import com.web.order.client.InventoryClient;
+import com.web.order.client.ProductClient;
+import com.web.order.dtos.*;
+import com.web.order.enums.OrderStatus;
+import com.web.order.models.OrderProduct;
 import com.web.order.producer.OrderEventProducer;
-import com.web.order.repos.OrderRepository;
+import com.web.order.repos.OrderProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.stream.Collectors;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderRepository orderRepository;
     private final OrderEventProducer producer;
+    private final OrderProductRepository productRepository;
+    private final ProductClient productClient;
+    private final InventoryClient inventoryClient;
+
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("dd-MM-yyyy")
+                    .withZone(ZoneOffset.UTC);
 
     @Override
-    public OrderResponse createOrder(CreateOrderRequest request) {
+    public OrderItemResponse createNewOrder(OrderItemRequest request) {
+        // 1️⃣ Validate product
+        ProductResponse product = productClient.getProduct(request.productId());
 
-        BigDecimal total = request.items().stream()
-                .map(i -> i.price().multiply(BigDecimal.valueOf(i.quantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        System.out.println(product.toString());
 
-        Order order = Order.builder()
-                .customerEmail(request.customerEmail())
-                .totalAmount(total)
+        if (product == null || !product.active()) {
+            throw new RuntimeException("Product not available");
+        }
+
+        // 2️⃣ Calculate total amount
+        BigDecimal totalAmount = product.price()
+                .multiply(BigDecimal.valueOf(request.quantity()));
+
+        // 3️⃣ Reserve inventory
+        ReserveRequest reserveRequest = new ReserveRequest(request.productId(), request.quantity());
+        ReserveResponse response =
+                inventoryClient.reserveStock(reserveRequest);
+
+        if (!response.success()) {
+            throw new RuntimeException("Stock not available");
+        }
+
+        // 4️⃣ Save order
+        OrderProduct orderProduct = OrderProduct.builder()
+                .userId(request.userId())
+                .productId(request.productId())
+                .quantity(request.quantity())
+                .amount(totalAmount)
+                .status(OrderStatus.CREATED)   // optional (already set in @PrePersist)
                 .build();
 
-        order.setItems(
-                request.items().stream()
-                        .map(i -> OrderItem.builder()
-                                .productId(i.productId())
-                                .quantity(i.quantity())
-                                .price(i.price())
-                                .order(order)
-                                .build())
-                        .collect(Collectors.toList())
-        );
-
-        Order saved = orderRepository.save(order);
-
-        producer.publishOrderCreated(
-                saved.getId(),
-                saved.getCustomerEmail(),
-                saved.getTotalAmount().toString()
-        );
-
-        return mapToResponse(saved);
+        //orderProduct = productRepository.save(orderProduct);
+        return mapToRecord(orderProduct);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public OrderResponse getOrder(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        return mapToResponse(order);
-    }
-
-    private OrderResponse mapToResponse(Order order) {
-        return new OrderResponse(
-                order.getId(),
-                order.getCustomerEmail(),
-                order.getStatus().name(),
-                order.getTotalAmount(),
-                order.getCreatedAt(),
-                order.getItems().stream()
-                        .map(i -> new OrderItemResponse(
-                                i.getProductId(),
-                                i.getQuantity(),
-                                i.getPrice()
-                        )).toList()
+    private OrderItemResponse mapToRecord(OrderProduct orderProduct) {
+        return new OrderItemResponse(
+                orderProduct.getId(),
+                orderProduct.getUserId(),
+                orderProduct.getProductId(),
+                orderProduct.getQuantity(),
+                orderProduct.getAmount(),
+                orderProduct.getStatus(),
+                FORMATTER.format(orderProduct.getCreatedAt()),
+                FORMATTER.format(orderProduct.getUpdatedAt())
         );
+
     }
+
 }

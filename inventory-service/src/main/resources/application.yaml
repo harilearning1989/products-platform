@@ -4,7 +4,7 @@ spring:
   main:
     banner-mode: off
   datasource:
-    url: jdbc:postgresql://localhost:30432/products
+    url: jdbc:postgresql://localhost:30432/inventory
     username: hari
     password: dudkrish1A
     driver-class-name: org.postgresql.Driver
