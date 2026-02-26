@@ -1,6 +1,6 @@
 package com.web.order.dtos;
 
-public record OrderItemRequest(
+public record OrderItemEvent(
         Long productId,
         Integer quantity
 ) {}

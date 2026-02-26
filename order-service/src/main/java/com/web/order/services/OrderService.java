@@ -1,10 +1,12 @@
 package com.web.order.services;
 
 
-import com.web.order.dtos.OrderItemRequest;
-import com.web.order.dtos.OrderItemResponse;
+import com.web.order.dtos.CreateOrderRequest;
+import com.web.order.dtos.OrderResponse;
 
 public interface OrderService {
 
-    OrderItemResponse createNewOrder(OrderItemRequest request);
+    //OrderItemResponse createNewOrderOld(OrderItemRequest request);
+
+    OrderResponse createNewOrder(CreateOrderRequest request);
 }

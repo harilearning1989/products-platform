@@ -56,5 +56,12 @@ public class ProductRestController {
     public void delete(@PathVariable Long id) {
         productService.delete(id);
     }
+
+    @PostMapping("/bulk")
+    public List<ProductResponse> getProducts(
+            @RequestBody List<Long> ids) {
+
+        return productService.getProductsByIds(ids);
+    }
 }
 

@@ -26,7 +26,7 @@ public class Payment {
 
     private Long orderId;
 
-    private String customerEmail;
+    private Integer userId;
 
     private BigDecimal amount;
 
@@ -34,6 +34,8 @@ public class Payment {
     private PaymentStatus status;
 
     private String transactionId;
+
+    private Long productId;
 
     private Instant createdAt;
 

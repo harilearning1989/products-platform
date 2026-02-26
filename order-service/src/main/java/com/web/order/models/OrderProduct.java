@@ -25,14 +25,11 @@ public class OrderProduct {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "product_id", nullable = false)
-    private Long productId;
+    @Column(name = "customer_email", nullable = false)
+    private String customerEmail;
 
     @Column(nullable = false)
-    private Integer quantity;
-
-    @Column(nullable = false)
-    private BigDecimal amount;
+    private BigDecimal totalAmount;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

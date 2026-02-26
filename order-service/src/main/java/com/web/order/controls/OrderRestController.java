@@ -1,10 +1,12 @@
 package com.web.order.controls;
 
-import com.web.order.dtos.OrderItemRequest;
-import com.web.order.dtos.OrderItemResponse;
+import com.web.order.dtos.CreateOrderRequest;
+import com.web.order.dtos.OrderResponse;
 import com.web.order.services.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +20,12 @@ public class OrderRestController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderItemResponse> createNewOrder(@RequestBody OrderItemRequest request) {
-        OrderItemResponse order = orderService.createNewOrder(request);
-        return ResponseEntity.ok(order);
+    public ResponseEntity<OrderResponse> createNewOrder(
+            @Validated @RequestBody CreateOrderRequest request) {
+        OrderResponse response = orderService.createNewOrder(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(response);
     }
 
 }

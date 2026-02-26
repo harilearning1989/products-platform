@@ -21,4 +21,7 @@ public interface ProductService {
     Page<ProductResponse> getAll(int page, int size);
 
     void delete(Long id);
+
+    List<ProductResponse> getProductsByIds(
+            List<Long> ids);
 }

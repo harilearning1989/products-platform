@@ -129,7 +129,16 @@ public class ProductServiceImpl implements ProductService{
         product.setActive(false); // soft delete
     }
 
-    private ProductResponse mapToResponse(com.web.demo.models.Product product) {
+    @Override
+    public List<ProductResponse> getProductsByIds(
+            List<Long> ids) {
+        return repository.findAllById(ids)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    private ProductResponse mapToResponse(Product product) {
         return new ProductResponse(
                 product.getId(),
                 product.getSku(),

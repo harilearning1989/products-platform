@@ -1,3 +1,15 @@
+CREATE TABLE order_product
+(
+    id             BIGSERIAL PRIMARY KEY,
+    user_id        BIGINT                   NOT NULL,
+    customer_email VARCHAR(255)             NOT NULL,
+    total_amount   NUMERIC(19, 2)           NOT NULL,
+    status         VARCHAR(50)              NOT NULL,
+    created_at     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
 CREATE TABLE orders
 (
     id             BIGSERIAL PRIMARY KEY,
@@ -35,7 +47,7 @@ CREATE TABLE order_product
     updated_at TIMESTAMPTZ    NOT NULL
 );
 
-CREATE INDEX idx_orders_user_id ON orders(user_id);
-CREATE INDEX idx_orders_product_id ON orders(product_id);
-CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_orders_created_at ON orders(created_at);
+CREATE INDEX idx_orders_user_id ON orders (user_id);
+CREATE INDEX idx_orders_product_id ON orders (product_id);
+CREATE INDEX idx_orders_status ON orders (status);
+CREATE INDEX idx_orders_created_at ON orders (created_at);

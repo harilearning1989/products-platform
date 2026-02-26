@@ -1,7 +1,8 @@
-package com.web.inventory.consumer;
+package com.web.inventory.listener;
 
 import com.web.inventory.dtos.ProductCreateDto;
 import com.web.inventory.models.Inventory;
+import com.web.inventory.producer.InventoryProducer;
 import com.web.inventory.services.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ProductCreatedConsumer {
+public class ProductCreatedListener {
 
     private final InventoryService inventoryService;
 

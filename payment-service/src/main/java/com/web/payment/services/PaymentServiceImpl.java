@@ -22,7 +22,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse processPayment(PaymentRequest request) {
-
         // Idempotency check
         repository.findByOrderId(request.orderId())
                 .ifPresent(existing -> {
@@ -31,7 +30,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = Payment.builder()
                 .orderId(request.orderId())
-                .customerEmail(request.customerEmail())
+                .userId(request.userId())
+                .productId(request.productId())
                 .amount(request.amount())
                 .build();
 

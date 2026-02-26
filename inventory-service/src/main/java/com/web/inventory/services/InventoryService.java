@@ -1,9 +1,10 @@
 package com.web.inventory.services;
 
 import com.web.inventory.dtos.InventoryDto;
+import com.web.inventory.dtos.OrderItemEvent;
 import com.web.inventory.models.Inventory;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface InventoryService {
 
@@ -19,5 +20,5 @@ public interface InventoryService {
 
     boolean findByProductId(Long aLong);
 
-    boolean reserveStock(Long productId, Integer quantity);
+    boolean reserveStock(List<OrderItemEvent> items);
 }

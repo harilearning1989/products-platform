@@ -1,12 +1,17 @@
 package com.web.inventory.services;
 
 import com.web.inventory.dtos.InventoryDto;
+import com.web.inventory.dtos.OrderItemEvent;
 import com.web.inventory.exceptions.InventoryNotFoundException;
 import com.web.inventory.models.Inventory;
 import com.web.inventory.repos.InventoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +29,6 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public InventoryDto reserve(Long productId, Integer quantity) {
-
         Inventory inventory = getInventoryEntity(productId);
 
         if (inventory.getAvailableQuantity() < quantity) {
@@ -78,32 +82,44 @@ public class InventoryServiceImpl implements InventoryService {
         return inventoryRepository.findByProductId(aLong).isPresent();
     }
 
-    @Override
-    public boolean reserveStock(Long productId, Integer quantity) {
-        Inventory inventory = inventoryRepository
-                .findByProductId(productId)
-                .orElse(null);
+    @Transactional
+    public boolean reserveStock(List<OrderItemEvent> items) {
+        // 1️⃣ Collect product IDs
+        List<Long> productIds = items.stream()
+                .map(OrderItemEvent::productId)
+                .toList();
 
-        if (inventory == null) {
-            return false;
+        // 2️⃣ Fetch all inventory rows with lock
+        List<Inventory> inventories =
+                inventoryRepository.findAllByProductIdsForUpdate(productIds);
+
+        Map<Long, Inventory> inventoryMap =
+                inventories.stream()
+                        .collect(Collectors.toMap(
+                                Inventory::getProductId,
+                                i -> i
+                        ));
+
+        // 3️⃣ VALIDATION LOOP (no deduction yet)
+        for (OrderItemEvent item : items) {
+            Inventory inventory =
+                    inventoryMap.get(item.productId());
+
+            if (inventory == null ||
+                    inventory.getAvailableQuantity()
+                            < item.quantity()) {
+                return false; // fail early
+            }
         }
 
-        // Check stock
-        if (inventory.getAvailableQuantity() < quantity) {
-            return false;
+        // 4️⃣ DEDUCTION LOOP (only if all valid)
+        for (OrderItemEvent item : items) {
+            Inventory inventory =
+                    inventoryMap.get(item.productId());
+            inventory.setAvailableQuantity(
+                    inventory.getAvailableQuantity()
+                            - item.quantity());
         }
-
-        // Reserve stock
-        inventory.setAvailableQuantity(
-                inventory.getAvailableQuantity() - quantity
-        );
-
-        inventory.setReservedQuantity(
-                inventory.getReservedQuantity() + quantity
-        );
-
-        inventoryRepository.save(inventory);
-
         return true;
     }
 

@@ -1,4 +1,0 @@
-package com.web.order.dtos;
-
-public record ReserveResponse(Boolean reserved, String stock,Long productId, Integer quantity) {
-}

@@ -1,4 +1,14 @@
 package com.web.order.dtos;
 
-public record OrderCreatedEvent(String string, Long orderId, String email, String amount) {
-}
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+
+public record OrderCreatedEvent(
+        String eventId,
+        Long orderId,
+        String customerEmail,
+        BigDecimal totalAmount,
+        List<OrderItemEvent> items,
+        Instant eventTime
+) {}
