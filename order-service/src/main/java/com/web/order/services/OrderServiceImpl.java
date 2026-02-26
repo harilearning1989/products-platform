@@ -49,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
         ReserveResponse response =
                 inventoryClient.reserveStock(reserveRequest);
 
-        if (!response.success()) {
+        if (!response.reserved()) {
             throw new RuntimeException("Stock not available");
         }
 
@@ -62,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
                 .status(OrderStatus.CREATED)   // optional (already set in @PrePersist)
                 .build();
 
-        //orderProduct = productRepository.save(orderProduct);
+        orderProduct = productRepository.save(orderProduct);
         return mapToRecord(orderProduct);
     }
 

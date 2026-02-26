@@ -1,6 +1,8 @@
 package com.web.inventory.controls;
 
 import com.web.inventory.dtos.InventoryDto;
+import com.web.inventory.dtos.ReserveRequest;
+import com.web.inventory.dtos.ReserveResponse;
 import com.web.inventory.services.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -10,37 +12,36 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InventoryRestController {
 
-    private final InventoryService service;
+    private final InventoryService inventoryService;
 
     @GetMapping("/{productId}")
     public InventoryDto getInventory(@PathVariable Long productId) {
-        return service.getInventory(productId);
+        return inventoryService.getInventory(productId);
     }
 
-    @PostMapping("/reserve")
+    @PostMapping("/reserveTmp")
     public InventoryDto reserve(
             @RequestParam Long productId,
             @RequestParam Integer quantity) {
-        return service.reserve(productId, quantity);
+        return inventoryService.reserve(productId, quantity);
     }
 
     @PostMapping("/confirm")
     public InventoryDto confirm(
             @RequestParam Long productId,
             @RequestParam Integer quantity) {
-        return service.confirm(productId, quantity);
+        return inventoryService.confirm(productId, quantity);
     }
 
     @PostMapping("/release")
     public InventoryDto release(
             @RequestParam Long productId,
             @RequestParam Integer quantity) {
-        return service.release(productId, quantity);
+        return inventoryService.release(productId, quantity);
     }
-/*
+
     @PostMapping("/reserve")
     public ReserveResponse reserve(@RequestBody ReserveRequest request) {
-
         boolean reserved = inventoryService.reserveStock(
                 request.productId(),
                 request.quantity()
@@ -53,5 +54,5 @@ public class InventoryRestController {
 
         return new ReserveResponse(true, "Stock reserved",
                 request.productId(), request.quantity());
-    }*/
+    }
 }

@@ -8,14 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class InventoryServiceImpl implements InventoryService {
 
-    private final InventoryRepository repository;
+    private final InventoryRepository inventoryRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -72,16 +70,45 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public void saveInventory(Inventory inventory) {
-        repository.save(inventory);
+        inventoryRepository.save(inventory);
     }
 
     @Override
     public boolean findByProductId(Long aLong) {
-        return repository.findByProductId(aLong).isPresent();
+        return inventoryRepository.findByProductId(aLong).isPresent();
+    }
+
+    @Override
+    public boolean reserveStock(Long productId, Integer quantity) {
+        Inventory inventory = inventoryRepository
+                .findByProductId(productId)
+                .orElse(null);
+
+        if (inventory == null) {
+            return false;
+        }
+
+        // Check stock
+        if (inventory.getAvailableQuantity() < quantity) {
+            return false;
+        }
+
+        // Reserve stock
+        inventory.setAvailableQuantity(
+                inventory.getAvailableQuantity() - quantity
+        );
+
+        inventory.setReservedQuantity(
+                inventory.getReservedQuantity() + quantity
+        );
+
+        inventoryRepository.save(inventory);
+
+        return true;
     }
 
     private Inventory getInventoryEntity(Long productId) {
-        return repository.findByProductId(productId)
+        return inventoryRepository.findByProductId(productId)
                 .orElseThrow(() -> new InventoryNotFoundException(productId));
     }
 

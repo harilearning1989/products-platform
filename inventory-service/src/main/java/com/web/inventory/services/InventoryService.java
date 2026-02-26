@@ -18,4 +18,6 @@ public interface InventoryService {
     void saveInventory(Inventory inventory);
 
     boolean findByProductId(Long aLong);
+
+    boolean reserveStock(Long productId, Integer quantity);
 }
