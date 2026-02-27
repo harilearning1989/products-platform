@@ -2,30 +2,32 @@ package com.web.inventory.listener;
 
 import com.web.inventory.dtos.ProductCreateDto;
 import com.web.inventory.models.Inventory;
-import com.web.inventory.producer.InventoryProducer;
 import com.web.inventory.services.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
 public class ProductCreatedListener {
 
     private final InventoryService inventoryService;
+    private final ObjectMapper objectMapper;
 
     @KafkaListener(
             topics = "product-created-topic",
             groupId = "product-group"
     )
     public void consume(
-            ProductCreateDto event,
+            String productCreateJson,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
             @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
             @Header(KafkaHeaders.OFFSET) long offset
     ) {
+        ProductCreateDto event = objectMapper.readValue(productCreateJson, ProductCreateDto.class);
 
         System.out.println("📦 Received Product Event:");
         System.out.println("Topic: " + topic);

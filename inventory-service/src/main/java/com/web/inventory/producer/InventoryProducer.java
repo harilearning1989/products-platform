@@ -5,23 +5,26 @@ import com.web.inventory.dtos.OrderCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
 public class InventoryProducer {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
     public void publishInventoryReserved(OrderCreatedEvent event) {
-        InventoryStatusEvent reservedEvent =
+        InventoryStatusEvent inventoryStatusEvent =
                 new InventoryStatusEvent(
                         event.orderId()
                 );
+        String inventoryStatusEventJson = objectMapper.writeValueAsString(inventoryStatusEvent);
 
         kafkaTemplate.send(
                 "inventory-reserved",
                 event.orderId().toString(),
-                reservedEvent
+                inventoryStatusEventJson
         );
     }
 
@@ -31,11 +34,12 @@ public class InventoryProducer {
                         event.orderId()
                 );
 
+        String inventoryStatusEventJson = objectMapper.writeValueAsString(failedEvent);
         kafkaTemplate.send(
                 "inventory-failed",
                 event.orderId().toString(),
-                failedEvent
+                inventoryStatusEventJson
         );
     }
-    
+
 }

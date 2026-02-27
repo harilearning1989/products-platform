@@ -7,6 +7,7 @@ import com.web.order.models.OrderProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,13 +17,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderPublish {
 
-    private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
     public void publishOrderCreated(
             OrderProduct order,
             List<OrderItemRequest> items) {
 
-        OrderCreatedEvent event =
+        OrderCreatedEvent orderCreatedEvent =
                 new OrderCreatedEvent(
                         UUID.randomUUID().toString(),
                         order.getId(),
@@ -36,8 +38,10 @@ public class OrderPublish {
                         Instant.now()
                 );
 
+        String orderCreatedEventJson = objectMapper.writeValueAsString(orderCreatedEvent);
+
         kafkaTemplate.send("order-created",
                 order.getId().toString(),
-                event);
+                orderCreatedEventJson);
     }
 }

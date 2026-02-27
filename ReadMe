@@ -83,18 +83,4 @@ Notification Service
    ↓
 Response
 
-==========================================
-Client
-   ↓
-Order Controller
-   ↓
-Order Service
-   ↓
-Call product-service
-   ↓
-Call inventory-service (reserve)
-   ↓
-Save order (status = RESERVED)
-   ↓
-Return response
 =======================================

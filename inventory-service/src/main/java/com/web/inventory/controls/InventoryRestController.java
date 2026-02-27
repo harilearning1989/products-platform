@@ -1,11 +1,14 @@
 package com.web.inventory.controls;
 
 import com.web.inventory.dtos.InventoryDto;
+import com.web.inventory.dtos.OrderItemEvent;
 import com.web.inventory.dtos.ReserveRequest;
 import com.web.inventory.dtos.ReserveResponse;
 import com.web.inventory.services.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/inventory")
@@ -41,18 +44,16 @@ public class InventoryRestController {
     }
 
     @PostMapping("/reserve")
-    public ReserveResponse reserve(@RequestBody ReserveRequest request) {
-        boolean reserved = inventoryService.reserveStock(
-                request.productId(),
-                request.quantity()
+    public ReserveResponse reserve(@RequestBody List<OrderItemEvent> items) {
+        boolean reserved = inventoryService.reserveStock(items
         );
 
         if (!reserved) {
             return new ReserveResponse(false, "Insufficient stock",
-                    request.productId(), 0);
+                    123L, 0);
         }
 
         return new ReserveResponse(true, "Stock reserved",
-                request.productId(), request.quantity());
+                123L, 12);
     }
 }
