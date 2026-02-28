@@ -28,6 +28,8 @@ public class Payment {
 
     private Integer userId;
 
+    private String customerEmail;
+
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
@@ -40,6 +42,8 @@ public class Payment {
     private Instant createdAt;
 
     private Instant updatedAt;
+
+    private String failureReason;
 
     @PrePersist
     public void prePersist() {

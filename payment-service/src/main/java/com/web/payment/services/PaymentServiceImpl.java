@@ -1,70 +1,70 @@
 package com.web.payment.services;
 
-import com.web.payment.dtos.PaymentRequest;
-import com.web.payment.dtos.PaymentResponse;
+import com.web.payment.dtos.OrderCreatedEvent;
+import com.web.payment.dtos.PaymentProcessedInternalEvent;
 import com.web.payment.enums.PaymentStatus;
 import com.web.payment.models.Payment;
-import com.web.payment.producer.PaymentEventProducer;
+import com.web.payment.produce.PaymentEventProduce;
 import com.web.payment.repos.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository repository;
-    private final PaymentEventProducer producer;
+    private final PaymentEventProduce paymentEventProduce;
+    private final PaymentRepository paymentRepository;
+    private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
-    @Override
-    public PaymentResponse processPayment(PaymentRequest request) {
-        // Idempotency check
-        repository.findByOrderId(request.orderId())
-                .ifPresent(existing -> {
-                    throw new RuntimeException("Payment already processed for order");
-                });
+    @Transactional
+    public void processInventoryReserved(String json) {
+        log.info("processInventoryReserved json: {}", json);
+        OrderCreatedEvent event =
+                objectMapper.readValue(json, OrderCreatedEvent.class);
+
+        if (paymentRepository.findByOrderId(event.orderId()).isPresent()) {
+            return;
+        }
 
         Payment payment = Payment.builder()
-                .orderId(request.orderId())
-                .userId(request.userId())
-                .productId(request.productId())
-                .amount(request.amount())
+                .orderId(event.orderId())
+                .customerEmail(event.customerEmail())
+                .amount(event.totalAmount())
+                .status(PaymentStatus.INITIATED)
                 .build();
 
-        // Simulate external gateway call
-        boolean success = simulateGateway();
+        paymentRepository.save(payment);
+
+        boolean success = processPayment(event.totalAmount());
 
         if (success) {
             payment.setStatus(PaymentStatus.SUCCESS);
             payment.setTransactionId(UUID.randomUUID().toString());
         } else {
             payment.setStatus(PaymentStatus.FAILED);
+            payment.setFailureReason("Payment gateway error");
         }
 
-        Payment saved = repository.save(payment);
-
-        // Publish event
-        if (saved.getStatus() == PaymentStatus.SUCCESS) {
-            producer.publishPaymentSuccess(saved);
-        } else {
-            producer.publishPaymentFailed(saved);
-        }
-
-        return new PaymentResponse(
-                saved.getId(),
-                saved.getOrderId(),
-                saved.getAmount(),
-                saved.getStatus().name(),
-                saved.getTransactionId(),
-                saved.getCreatedAt()
+        // 🔥 Publish INTERNAL event (not Kafka yet)
+        eventPublisher.publishEvent(
+                new PaymentProcessedInternalEvent(payment, event.items())
         );
     }
 
-    private boolean simulateGateway() {
-        return Math.random() > 0.2; // 80% success rate
+    private boolean processPayment(BigDecimal amount) {
+        return true;
     }
+
 }

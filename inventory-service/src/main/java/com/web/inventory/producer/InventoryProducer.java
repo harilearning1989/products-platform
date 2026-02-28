@@ -1,6 +1,5 @@
 package com.web.inventory.producer;
 
-import com.web.inventory.dtos.InventoryStatusEvent;
 import com.web.inventory.dtos.OrderCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -14,31 +13,22 @@ public class InventoryProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    public void publishInventoryReserved(OrderCreatedEvent event) {
-        InventoryStatusEvent inventoryStatusEvent =
-                new InventoryStatusEvent(
-                        event.orderId()
-                );
-        String inventoryStatusEventJson = objectMapper.writeValueAsString(inventoryStatusEvent);
+    public void publishInventoryReserved(OrderCreatedEvent orderCreatedEvent) {
+        String orderCreatedEventJson = objectMapper.writeValueAsString(orderCreatedEvent);
 
         kafkaTemplate.send(
                 "inventory-reserved",
-                event.orderId().toString(),
-                inventoryStatusEventJson
+                orderCreatedEvent.orderId().toString(),
+                orderCreatedEventJson
         );
     }
 
-    public void publishInventoryFailed(OrderCreatedEvent event) {
-        InventoryStatusEvent failedEvent =
-                new InventoryStatusEvent(
-                        event.orderId()
-                );
-
-        String inventoryStatusEventJson = objectMapper.writeValueAsString(failedEvent);
+    public void publishInventoryFailed(OrderCreatedEvent orderCreatedEvent) {
+        String orderCreatedEventJson = objectMapper.writeValueAsString(orderCreatedEvent);
         kafkaTemplate.send(
                 "inventory-failed",
-                event.orderId().toString(),
-                inventoryStatusEventJson
+                orderCreatedEvent.orderId().toString(),
+                orderCreatedEventJson
         );
     }
 

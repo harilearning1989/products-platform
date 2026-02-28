@@ -19,14 +19,14 @@ public class OrderCreatedListener {
     @KafkaListener(topics = "order-created")
     public void reserve(String orderCreatedEventJson) {
         System.out.println("Order Created Event: " + orderCreatedEventJson);
-        OrderCreatedEvent inventoryStatusEvent = objectMapper.readValue(orderCreatedEventJson, OrderCreatedEvent.class);
-        boolean reserveStock = inventoryService.reserveStock(inventoryStatusEvent.items());
+        OrderCreatedEvent orderCreatedEvent = objectMapper.readValue(orderCreatedEventJson, OrderCreatedEvent.class);
+        boolean reserveStock = inventoryService.reserveStock(orderCreatedEvent.items());
 
         if (reserveStock) {
-            inventoryProducer.publishInventoryReserved(inventoryStatusEvent);
+            inventoryProducer.publishInventoryReserved(orderCreatedEvent);
             //inventoryProducer.publishPayment(event);
         } else {
-            inventoryProducer.publishInventoryFailed(inventoryStatusEvent);
+            inventoryProducer.publishInventoryFailed(orderCreatedEvent);
         }
     }
 }

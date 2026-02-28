@@ -9,7 +9,9 @@ import com.web.order.enums.OrderStatus;
 import com.web.order.models.OrderProduct;
 import com.web.order.producer.OrderPublish;
 import com.web.order.repos.OrderProductRepository;
+import com.web.order.wrapper.ProductClientWrapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +25,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderProductRepository orderProductRepository;
     private final ProductClient productClient;
     private final OrderPublish orderPublish;
+    private final ProductClientWrapper productClientWrapper;
 
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd-MM-yyyy")
@@ -42,7 +46,9 @@ public class OrderServiceImpl implements OrderService {
                 .map(OrderItemRequest::productId)
                 .toList();
 
-        List<ProductResponse> products = productClient.getProducts(ids);
+        // 🔥 NOW proxy is used → CircuitBreaker works
+        List<ProductResponse> products =
+                productClientWrapper.fetchProducts(ids);
 
         Map<Long, ProductResponse> productMap =
                 products.stream()
@@ -71,7 +77,7 @@ public class OrderServiceImpl implements OrderService {
                 .userId(request.userId())
                 .customerEmail(request.customerEmail())
                 .totalAmount(total)
-                .status(OrderStatus.CREATED)
+                .status(OrderStatus.PENDING)
                 .build();
 
         order = orderProductRepository.save(order);
