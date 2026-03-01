@@ -4,9 +4,30 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 
 @Configuration
 public class GatewayRoutesConfig {
+
+    /*
+    IMPORTANT: Retry Only Works For
+
+    ✔ 5xx status
+    ✔ Network errors
+    ✔ Timeouts
+
+    It will NOT retry:
+
+    ❌ 400
+    ❌ 404
+    ❌ 401
+
+    Unless you explicitly configure it.
+
+    ConnectException
+    UnknownHostException
+    ReadTimeoutException
+     */
 
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
@@ -58,9 +79,13 @@ public class GatewayRoutesConfig {
                         .path("/orders/**")
                         .filters(f -> f
                                 .addRequestHeader("X-Gateway", "Order-Service")
+                                .retry(retry -> retry
+                                        .setRetries(2)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                )
                                 .circuitBreaker(config -> config
                                         .setName("orderServiceCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/orders")
+                                        .setFallbackUri("forward:/fallback/order-service")
                                 )
                         )
                         .uri("lb://ORDER-SERVICE")

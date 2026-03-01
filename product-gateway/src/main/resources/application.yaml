@@ -3,9 +3,14 @@ spring:
     name: product-gateway
   main:
     banner-mode: off
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 2000  # 2 seconds to establish connection
+        response-timeout: 3s   # 5 seconds to receive response
 
 server:
-  port: 8081
+  port: 8082
 
 eureka:
   client:
@@ -28,3 +33,17 @@ gateway:
     notification: false
     employee: false
     enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      orderServiceCircuitBreaker:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG

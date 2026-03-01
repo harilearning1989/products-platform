@@ -81,11 +81,7 @@ public class PaymentEventListener {
     )
     @Transactional
     public void handlePaymentFailed(String json) throws Exception {
-
-        PaymentFailedEvent event =
-                objectMapper.readValue(
-                        json,
-                        PaymentFailedEvent.class);
+        PaymentFailedEvent event = objectMapper.readValue(json, PaymentFailedEvent.class);
 
         Notification notification = Notification.builder()
                 .orderId(event.orderId())
@@ -97,23 +93,14 @@ public class PaymentEventListener {
         repository.save(notification);
 
         try {
+            String content = "Your order " + event.orderId() + " payment failed.Reason: " + event.failureReason();
 
-            String content =
-                    "Your order " + event.orderId() +
-                            " payment failed.\nReason: " +
-                            event.failureReason();
-
-            emailService.sendEmail(
-                    event.customerEmail(),
-                    "Payment Failed",
-                    content
-            );
+            emailService.sendEmail(event.customerEmail(), "Payment Failed", content);
 
             notification.setStatus("SENT");
             notification.setSentAt(Instant.now());
 
         } catch (Exception ex) {
-
             log.error("Email sending failed", ex);
 
             notification.setStatus("FAILED");
