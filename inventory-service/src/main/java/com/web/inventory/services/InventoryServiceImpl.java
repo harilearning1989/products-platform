@@ -114,11 +114,20 @@ public class InventoryServiceImpl implements InventoryService {
 
         // 4️⃣ DEDUCTION LOOP (only if all valid)
         for (OrderItemEvent item : items) {
-            Inventory inventory =
-                    inventoryMap.get(item.productId());
+            Inventory inventory = inventoryMap.get(item.productId());
+
+            if (inventory.getAvailableQuantity() < item.quantity()) {
+                return false;
+            }
+
+            // Move stock from available → reserved
             inventory.setAvailableQuantity(
-                    inventory.getAvailableQuantity()
-                            - item.quantity());
+                    inventory.getAvailableQuantity() - item.quantity()
+            );
+
+            inventory.setReservedQuantity(
+                    inventory.getReservedQuantity() + item.quantity()
+            );
         }
         return true;
     }

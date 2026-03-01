@@ -1,4 +1,4 @@
-package com.web.payment.dtos;
+package com.web.notification.dtos;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -8,6 +8,6 @@ public record PaymentSuccessEvent(String uuid,
                                   BigDecimal amount,
                                   String transactionId,
                                   Instant now,
-                                  String customerEmail,
-                                  String failureReason) {
+                                  String failureReason,
+                                  String customerEmail) {
 }

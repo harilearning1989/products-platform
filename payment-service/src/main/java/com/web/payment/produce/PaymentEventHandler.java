@@ -34,6 +34,7 @@ public class PaymentEventHandler {
                             payment.getAmount(),
                             payment.getTransactionId(),
                             Instant.now(),
+                            payment.getCustomerEmail(),
                             null
                     );
 
@@ -51,6 +52,7 @@ public class PaymentEventHandler {
                             payment.getAmount(),
                             payment.getTransactionId(),
                             Instant.now(),
+                            payment.getCustomerEmail(),
                             payment.getFailureReason(),
                             event.items()
                     );

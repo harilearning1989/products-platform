@@ -37,8 +37,6 @@ public class Payment {
 
     private String transactionId;
 
-    private Long productId;
-
     private Instant createdAt;
 
     private Instant updatedAt;

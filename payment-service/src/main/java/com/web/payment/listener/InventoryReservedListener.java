@@ -17,7 +17,6 @@ public class InventoryReservedListener {
     private final PaymentEventProduce paymentEventProduce;
     private final PaymentService paymentService;
 
-
     @KafkaListener(
             topics = "inventory-reserved",
             groupId = "payment-group"

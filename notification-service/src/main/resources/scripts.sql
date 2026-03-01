@@ -1,16 +1,20 @@
 CREATE TABLE notifications
 (
-    id          BIGSERIAL PRIMARY KEY,
-    event_id    VARCHAR(255) NOT NULL UNIQUE,
-    type        VARCHAR(100) NOT NULL,
-    recipient   VARCHAR(255) NOT NULL,
-    channel     VARCHAR(50)  NOT NULL,
-    content     TEXT         NOT NULL,
-    status      VARCHAR(50)  NOT NULL,
-    retry_count INT                   DEFAULT 0,
-    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    sent_at     TIMESTAMP
+    id             BIGSERIAL PRIMARY KEY,
+    order_id       BIGINT       NOT NULL,
+    email          VARCHAR(150) NOT NULL,
+    type           VARCHAR(50)  NOT NULL,
+    status         VARCHAR(30)  NOT NULL,
+    failure_reason VARCHAR(255),
+    created_at     TIMESTAMP    NOT NULL,
+    sent_at        TIMESTAMP
 );
 
-CREATE INDEX idx_notification_event_id ON notifications (event_id);
-CREATE INDEX idx_notification_status ON notifications (status);
+CREATE INDEX idx_notifications_order_id
+    ON notifications (order_id);
+
+CREATE INDEX idx_notifications_status
+    ON notifications (status);
+
+CREATE INDEX idx_notifications_created_at
+    ON notifications (created_at);

@@ -2,20 +2,27 @@ package com.web.order.models;
 
 import com.web.order.enums.OrderStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+        import lombok.*;
 
-import java.math.BigDecimal;
+        import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "order_product")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(
+        name = "order_product",
+        indexes = {
+                @Index(name = "idx_orders_user_id", columnList = "user_id"),
+                @Index(name = "idx_orders_status", columnList = "status"),
+                @Index(name = "idx_orders_created_at", columnList = "created_at")
+        }
+)
+@Getter
+@Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderProduct {
 
     @Id
@@ -25,32 +32,41 @@ public class OrderProduct {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "customer_email", nullable = false)
+    @Column(name = "customer_email", nullable = false, length = 150)
     private String customerEmail;
 
-    @Column(nullable = false)
+    @Column(name = "total_amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal totalAmount;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
     private OrderStatus status;
+
+    @Version
+    private Integer version;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @Builder.Default
+    @OneToMany(
+            mappedBy = "order",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<OrderItem> items = new ArrayList<>();
+
     @PrePersist
-    public void prePersist() {
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
-        status = OrderStatus.CREATED;
+    public void onCreate() {
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     @PreUpdate
-    public void preUpdate() {
-        updatedAt = Instant.now();
+    public void onUpdate() {
+        this.updatedAt = Instant.now();
     }
-
 }

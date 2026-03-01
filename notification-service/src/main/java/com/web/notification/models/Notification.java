@@ -6,11 +6,14 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "notifications",
+@Table(
+        name = "notifications",
         indexes = {
-                @Index(name = "idx_notification_event_id", columnList = "eventId"),
-                @Index(name = "idx_notification_status", columnList = "status")
-        })
+                @Index(name = "idx_notifications_order_id", columnList = "order_id"),
+                @Index(name = "idx_notifications_status", columnList = "status"),
+                @Index(name = "idx_notifications_created_at", columnList = "created_at")
+        }
+)
 @Getter
 @Setter
 @Builder
@@ -22,36 +25,29 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // For idempotency
-    @Column(nullable = false, unique = true)
-    private String eventId;
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
 
-    @Column(nullable = false)
-    private String type; // ORDER_CREATED, PAYMENT_SUCCESS
+    @Column(nullable = false, length = 150)
+    private String email;
 
-    @Column(nullable = false)
-    private String recipient;
+    @Column(nullable = false, length = 50)
+    private String type; // PAYMENT_SUCCESS / PAYMENT_FAILED
 
-    @Column(nullable = false)
-    private String channel; // EMAIL, SMS
+    @Column(nullable = false, length = 30)
+    private String status; // PENDING / SENT / FAILED
 
-    @Column(nullable = false, length = 2000)
-    private String content;
+    @Column(name = "failure_reason")
+    private String failureReason;
 
-    @Column(nullable = false)
-    private String status; // PENDING, SENT, FAILED
-
-    private int retryCount;
-
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @Column(name = "sent_at")
     private Instant sentAt;
 
     @PrePersist
-    public void prePersist() {
+    public void onCreate() {
         this.createdAt = Instant.now();
-        this.status = "PENDING";
-        this.retryCount = 0;
     }
 }

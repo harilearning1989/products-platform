@@ -1,17 +1,14 @@
 package com.web.order.services;
 
-import com.web.order.client.ProductClient;
-import com.web.order.dtos.CreateOrderRequest;
-import com.web.order.dtos.OrderItemRequest;
-import com.web.order.dtos.OrderResponse;
-import com.web.order.dtos.ProductResponse;
+import com.web.order.dtos.*;
 import com.web.order.enums.OrderStatus;
+import com.web.order.models.OrderItem;
 import com.web.order.models.OrderProduct;
-import com.web.order.producer.OrderPublish;
 import com.web.order.repos.OrderProductRepository;
 import com.web.order.wrapper.ProductClientWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +26,8 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderProductRepository orderProductRepository;
-    private final ProductClient productClient;
-    private final OrderPublish orderPublish;
     private final ProductClientWrapper productClientWrapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd-MM-yyyy")
@@ -40,13 +36,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse createNewOrder(CreateOrderRequest request) {
+
         // 1️⃣ Bulk fetch products
         List<Long> ids = request.items()
                 .stream()
                 .map(OrderItemRequest::productId)
                 .toList();
 
-        // 🔥 NOW proxy is used → CircuitBreaker works
         List<ProductResponse> products =
                 productClientWrapper.fetchProducts(ids);
 
@@ -59,31 +55,46 @@ public class OrderServiceImpl implements OrderService {
 
         BigDecimal total = BigDecimal.ZERO;
 
+        OrderProduct order = OrderProduct.builder()
+                .userId(request.userId())
+                .customerEmail(request.customerEmail())
+                .status(OrderStatus.PENDING)
+                .build();
+
         for (OrderItemRequest item : request.items()) {
+
             ProductResponse product =
                     productMap.get(item.productId());
 
             if (product == null || !product.active()) {
-                throw new RuntimeException("Invalid product");
+                throw new RuntimeException(
+                        "Invalid product: " + item.productId());
             }
 
-            BigDecimal itemTotal = product.price().multiply(BigDecimal.valueOf(item.quantity()));
+            BigDecimal itemTotal =
+                    product.price()
+                            .multiply(BigDecimal.valueOf(item.quantity()));
 
             total = total.add(itemTotal);
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProductId(product.id());
+            orderItem.setProductName(product.name());
+            orderItem.setPrice(product.price());
+            orderItem.setQuantity(item.quantity());
+            orderItem.setLineTotal(itemTotal);
+            orderItem.setOrder(order);
+
+            order.getItems().add(orderItem);
         }
 
-        // 2️⃣ Save order
-        OrderProduct order = OrderProduct.builder()
-                .userId(request.userId())
-                .customerEmail(request.customerEmail())
-                .totalAmount(total)
-                .status(OrderStatus.PENDING)
-                .build();
+        order.setTotalAmount(total);
 
         order = orderProductRepository.save(order);
 
-        // 3️⃣ Publish event
-        orderPublish.publishOrderCreated(order, request.items());
+        // 🔥 Publish INTERNAL domain event
+        eventPublisher.publishEvent(
+                new OrderCreatedDomainEvent(order.getId()));
 
         return new OrderResponse(
                 order.getId(),

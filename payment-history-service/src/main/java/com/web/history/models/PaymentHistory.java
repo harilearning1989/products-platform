@@ -7,12 +7,14 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-@Table(name = "payment_history",
+@Table(
+        name = "payment_history",
         indexes = {
-                @Index(name = "idx_ph_order", columnList = "orderId"),
-                @Index(name = "idx_ph_email", columnList = "customerEmail"),
-                @Index(name = "idx_ph_status", columnList = "status")
-        })
+                @Index(name = "idx_payment_history_order_id", columnList = "order_id"),
+                @Index(name = "idx_payment_history_status", columnList = "status"),
+                @Index(name = "idx_payment_history_created_at", columnList = "created_at")
+        }
+)
 @Getter
 @Setter
 @Builder
@@ -24,17 +26,26 @@ public class PaymentHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long paymentId;
+    @Column(name = "order_id", nullable = false)
     private Long orderId;
-    private String customerEmail;
-    private BigDecimal amount;
-    private String status;
+
+    @Column(name = "transaction_id")
     private String transactionId;
 
-    private Instant eventTime;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal amount;
+
+    @Column(nullable = false, length = 30)
+    private String status;  // SUCCESS / FAILED
+
+    @Column(name = "failure_reason")
+    private String failureReason;
+
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 
     @PrePersist
-    public void prePersist() {
-        eventTime = Instant.now();
+    public void onCreate() {
+        this.createdAt = Instant.now();
     }
 }

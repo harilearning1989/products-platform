@@ -23,10 +23,19 @@ public class PaymentEventListener {
         System.out.println("Payment service OrderInventoryListener handlePaymentFailed:: " + paymentFailedEventJson);
         PaymentFailedEvent paymentEvent = objectMapper.readValue(paymentFailedEventJson, PaymentFailedEvent.class);
         for (OrderItemEvent item : paymentEvent.items()) {
-            Inventory inventory = inventoryRepository.findById(item.productId()).get();
+            Inventory inventory = inventoryRepository
+                    .findById(item.productId())
+                    .orElseThrow(() ->
+                            new RuntimeException(
+                                    "Inventory not found for productId: "
+                                            + item.productId()));
 
             inventory.setAvailableQuantity(
                     inventory.getAvailableQuantity() + item.quantity()
+            );
+
+            inventory.setReservedQuantity(
+                    inventory.getReservedQuantity() - item.quantity()
             );
         }
     }
