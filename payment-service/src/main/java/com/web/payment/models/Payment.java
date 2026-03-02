@@ -26,7 +26,7 @@ public class Payment {
 
     private Long orderId;
 
-    private Integer userId;
+    private Long userId;
 
     private String customerEmail;
 

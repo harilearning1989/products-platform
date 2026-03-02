@@ -13,4 +13,5 @@ public class ServiceUrlConfig {
     private String inventory;
     private String product;
     private String payment;
+    private String customer;
 }

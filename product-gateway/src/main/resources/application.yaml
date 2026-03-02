@@ -7,7 +7,14 @@ spring:
     gateway:
       httpclient:
         connect-timeout: 2000  # 2 seconds to establish connection
-        response-timeout: 3s   # 5 seconds to receive response
+        response-timeout: 10s   # 10 seconds to receive response
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
 
 server:
   port: 8082

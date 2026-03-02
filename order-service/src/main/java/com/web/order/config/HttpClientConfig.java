@@ -1,6 +1,8 @@
 package com.web.order.config;
 
+import com.web.order.client.CustomerClient;
 import com.web.order.client.InventoryClient;
+import com.web.order.client.PaymentClient;
 import com.web.order.client.ProductClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,15 +15,19 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @RequiredArgsConstructor
 public class HttpClientConfig {
 
-    /*
+    private final WebClient.Builder webClientBuilder;
+    private final ServiceUrlConfig serviceUrls;
+
 
     @Bean
     public PaymentClient paymentClient() {
         return createClient(PaymentClient.class, serviceUrls.getPayment());
-    }*/
+    }
 
-    private final WebClient.Builder webClientBuilder;
-    private final ServiceUrlConfig serviceUrls;
+    @Bean
+    public CustomerClient customerClient() {
+        return createClient(CustomerClient.class, serviceUrls.getCustomer());
+    }
 
     @Bean
     public ProductClient productClient() {

@@ -33,11 +33,13 @@ public class GatewayRoutesConfig {
     Dynamic Routing (Path-Based Routing)
     Load Balancing Works with Eureka or other service discovery tools.
     Authentication & Authorization (JWT/OAuth2)
-    Rate Limiting
+    Rate Limiting Limit the number of requests per user/IP.
     Circuit Breaker (Fault Tolerance)
     Request & Response Modification
     URL Rewriting
     CORS Configuration  Handle cross-origin requests globally.
+    Logging & Monitoring
+    API Versioning
      */
 
     @Bean
@@ -220,4 +222,5 @@ public class GatewayRoutesConfig {
 
                 .build();
     }
+
 }

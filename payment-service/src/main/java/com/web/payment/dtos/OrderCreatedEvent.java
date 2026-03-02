@@ -8,6 +8,7 @@ public record OrderCreatedEvent(
         String eventId,
         Long orderId,
         String customerEmail,
+        Long userId,
         BigDecimal totalAmount,
         List<OrderItemEvent> items,
         Instant eventTime

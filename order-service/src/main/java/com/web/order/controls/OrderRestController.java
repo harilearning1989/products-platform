@@ -1,6 +1,7 @@
 package com.web.order.controls;
 
 import com.web.order.dtos.CreateOrderRequest;
+import com.web.order.dtos.OrderDetailsResponse;
 import com.web.order.dtos.OrderResponse;
 import com.web.order.services.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -26,6 +28,19 @@ public class OrderRestController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+        List<OrderResponse> orderResponses = orderService.findAllOrders();
+        return ResponseEntity.ok(orderResponses);
+    }
+
+    @GetMapping("/{id}")
+    public OrderDetailsResponse getOrderDetails(
+            @PathVariable Long id) {
+
+        return orderService.getOrderDetails(id);
     }
 
     @GetMapping("/test-retry")

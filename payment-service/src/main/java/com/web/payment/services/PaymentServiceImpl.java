@@ -41,6 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = Payment.builder()
                 .orderId(event.orderId())
                 .customerEmail(event.customerEmail())
+                .userId(event.userId())
                 .amount(event.totalAmount())
                 .status(PaymentStatus.INITIATED)
                 .build();

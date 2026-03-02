@@ -44,6 +44,7 @@ public class OrderKafkaPublisher {
                         UUID.randomUUID().toString(),
                         order.getId(),
                         order.getCustomerEmail(),
+                        order.getUserId(),
                         order.getTotalAmount(),
                         items,
                         Instant.now()

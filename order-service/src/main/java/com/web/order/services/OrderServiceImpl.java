@@ -2,10 +2,12 @@ package com.web.order.services;
 
 import com.web.order.dtos.*;
 import com.web.order.enums.OrderStatus;
+import com.web.order.mappers.OrderMapper;
 import com.web.order.models.OrderItem;
 import com.web.order.models.OrderProduct;
 import com.web.order.repos.OrderProductRepository;
-import com.web.order.wrapper.ProductClientWrapper;
+import com.web.order.wrapper.CustomerClientWrapper;
+import com.web.order.wrapper.PaymentClientWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -17,7 +19,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,14 +27,139 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderProductRepository orderProductRepository;
-    private final ProductClientWrapper productClientWrapper;
+    private final CustomerClientWrapper customerClientWrapper;
+    private final PaymentClientWrapper paymentClientWrapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final OrderMapper orderMapper;
+    private final ProductEnrichmentService productEnrichmentService;
 
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd-MM-yyyy")
                     .withZone(ZoneOffset.UTC);
 
     @Override
+    @Transactional
+    public OrderResponse createNewOrder(CreateOrderRequest request) {
+        List<Long> ids = request.items()
+                .stream()
+                .map(OrderItemRequest::productId)
+                .toList();
+
+        Map<Long, ProductResponse> productMap =
+                productEnrichmentService.fetchProductMap(ids);
+
+        OrderProduct order = OrderProduct.builder()
+                .userId(request.userId())
+                .customerEmail(request.customerEmail())
+                .status(OrderStatus.PENDING)
+                .build();
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (OrderItemRequest item : request.items()) {
+
+            ProductResponse product =
+                    productMap.get(item.productId());
+
+            if (product == null || !product.active()) {
+                throw new RuntimeException(
+                        "Invalid product: " + item.productId());
+            }
+
+            OrderItem orderItem =
+                    buildOrderItem(item, product, order);
+
+            total = total.add(orderItem.getLineTotal());
+
+            order.getItems().add(orderItem);
+        }
+
+        order.setTotalAmount(total);
+
+        order = orderProductRepository.save(order);
+
+        eventPublisher.publishEvent(
+                new OrderCreatedDomainEvent(order.getId()));
+
+        return orderMapper.toResponse(order);
+    }
+
+    @Override
+    public OrderDetailsResponse getOrderDetails(Long orderId) {
+
+        OrderProduct orderProduct =
+                orderProductRepository.findById(orderId)
+                        .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        CustomerResponse customer =
+                customerClientWrapper.getCustomerById(orderProduct.getUserId());
+
+        PaymentResponse payment =
+                paymentClientWrapper.getPaymentByOrderId(orderId);
+
+        List<Long> productIds =
+                orderProduct.getItems()
+                        .stream()
+                        .map(OrderItem::getProductId)
+                        .toList();
+
+        Map<Long, ProductResponse> productMap =
+                productEnrichmentService.fetchProductMap(productIds);
+
+        List<OrderDetailItemResponse> itemDetails =
+                mapToDetailItems(orderProduct.getItems(), productMap);
+
+        return new OrderDetailsResponse(
+                orderProduct.getId(),
+                orderProduct.getStatus(),
+                orderProduct.getTotalAmount(),
+                customer,
+                itemDetails,
+                payment
+        );
+    }
+
+    private OrderItem buildOrderItem(
+            OrderItemRequest requestItem,
+            ProductResponse product,
+            OrderProduct order) {
+
+        BigDecimal itemTotal =
+                product.price()
+                        .multiply(BigDecimal.valueOf(requestItem.quantity()));
+
+        OrderItem orderItem = new OrderItem();
+        orderItem.setProductId(product.id());
+        orderItem.setProductName(product.name());
+        orderItem.setPrice(product.price());
+        orderItem.setQuantity(requestItem.quantity());
+        orderItem.setLineTotal(itemTotal);
+        orderItem.setOrder(order);
+
+        return orderItem;
+    }
+
+    private List<OrderDetailItemResponse> mapToDetailItems(
+            List<OrderItem> orderItems,
+            Map<Long, ProductResponse> productMap) {
+
+        return orderItems.stream()
+                .map(item -> {
+
+                    ProductResponse product =
+                            productMap.get(item.getProductId());
+
+                    return new OrderDetailItemResponse(
+                            item.getProductId(),
+                            product != null ? product.name() : item.getProductName(),
+                            item.getPrice(),
+                            item.getQuantity()
+                    );
+                })
+                .toList();
+    }
+
+    /*
     @Transactional
     public OrderResponse createNewOrder(CreateOrderRequest request) {
 
@@ -96,80 +222,72 @@ public class OrderServiceImpl implements OrderService {
         eventPublisher.publishEvent(
                 new OrderCreatedDomainEvent(order.getId()));
 
-        return new OrderResponse(
-                order.getId(),
-                order.getTotalAmount(),
-                order.getStatus()
-        );
+        return orderMapper.toResponse(order);
     }
 
-    /*@Transactional
-    public OrderItemResponse createNewOrderOld(OrderItemRequest request) {
-        OrderProduct orderProduct = OrderProduct.builder()
-                .userId(request.userId())
-                .productId(request.productId())
-                .quantity(request.quantity())
-                .status(OrderStatus.CREATED)   // optional (already set in @PrePersist)
-                .build();
+    public OrderDetailsResponse getOrderDetails(Long orderId) {
+        // 1️⃣ Get Order
+        OrderProduct orderProduct = orderProductRepository
+                .findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        orderProduct = productRepository.save(orderProduct);
+        // 2️⃣ Get Customer
+        CustomerResponse customer =
+                customerClientWrapper.getCustomerById(orderProduct.getUserId());
 
-        orderEventProducer.publishOrderCreated(orderProduct.getId(),
-                request.productId(),
-                request.quantity());
+        // 3️⃣ Get Payment
+        PaymentResponse payment =
+                paymentClientWrapper.getPaymentByOrderId(orderId);
 
-        return mapToRecord(orderProduct);
-    }
+        // 4️⃣ Get Product Details (bulk)
+        List<Long> productIds =
+                orderProduct.getItems()
+                        .stream()
+                        .map(OrderItem::getProductId)
+                        .toList();
 
-    //@Override
-    public OrderItemResponse createNewOrderTmp(OrderItemRequest request) {
-        // 1️⃣ Validate product
-        ProductResponse product = productClient.getProduct(request.productId());
+        List<ProductResponse> products =
+                productClientWrapper.fetchProducts(productIds);
 
-        System.out.println(product.toString());
+        Map<Long, ProductResponse> productMap =
+                products.stream()
+                        .collect(Collectors.toMap(
+                                ProductResponse::id,
+                                p -> p
+                        ));
 
-        if (product == null || !product.active()) {
-            throw new RuntimeException("Product not available");
-        }
+        // 5️⃣ Build Final Response
+        List<OrderDetailItemResponse> itemDetails =
+                orderProduct.getItems()
+                        .stream()
+                        .map(item -> {
 
-        // 2️⃣ Calculate total amount
-        BigDecimal totalAmount = product.price()
-                .multiply(BigDecimal.valueOf(request.quantity()));
+                            ProductResponse product =
+                                    productMap.get(item.getProductId());
 
-        // 3️⃣ Reserve inventory
-        ReserveRequest reserveRequest = new ReserveRequest(request.productId(), request.quantity());
-        ReserveResponse response =
-                inventoryClient.reserveStock(reserveRequest);
+                            return new OrderDetailItemResponse(
+                                    item.getProductId(),
+                                    product.name(),
+                                    item.getPrice(),
+                                    item.getQuantity()
+                            );
+                        })
+                        .toList();
 
-        if (!response.reserved()) {
-            throw new RuntimeException("Stock not available");
-        }
-
-        // 4️⃣ Save order
-        OrderProduct orderProduct = OrderProduct.builder()
-                .userId(request.userId())
-                .productId(request.productId())
-                .quantity(request.quantity())
-                .amount(totalAmount)
-                .status(OrderStatus.CREATED)   // optional (already set in @PrePersist)
-                .build();
-
-        orderProduct = productRepository.save(orderProduct);
-        return mapToRecord(orderProduct);
-    }
-
-    private OrderItemResponse mapToRecord(OrderProduct orderProduct) {
-        return new OrderItemResponse(
+        return new OrderDetailsResponse(
                 orderProduct.getId(),
-                orderProduct.getUserId(),
-                orderProduct.getProductId(),
-                orderProduct.getQuantity(),
-                orderProduct.getAmount(),
                 orderProduct.getStatus(),
-                FORMATTER.format(orderProduct.getCreatedAt()),
-                FORMATTER.format(orderProduct.getUpdatedAt())
+                orderProduct.getTotalAmount(),
+                customer,
+                itemDetails,
+                payment
         );
-
     }*/
+
+    @Override
+    public List<OrderResponse> findAllOrders() {
+        List<OrderProduct> allOrders = orderProductRepository.findAll();
+        return orderMapper.toResponseList(allOrders);
+    }
 
 }

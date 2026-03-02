@@ -31,6 +31,13 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
+  #mvc:
+  #  problemdetails:
+  #    enabled: true
+ # web:
+   # error:
+   #   whitelabel:
+      #  enabled: false
 server:
   port: 8087
 
@@ -47,6 +54,7 @@ services:
   product: product-service
   inventory: inventory-service
   payment: payment-service
+  customer: customer-service
 
 resilience4j:
   circuitbreaker:
