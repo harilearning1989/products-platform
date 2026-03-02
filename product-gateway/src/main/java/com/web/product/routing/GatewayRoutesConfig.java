@@ -29,6 +29,17 @@ public class GatewayRoutesConfig {
     ReadTimeoutException
      */
 
+    /*
+    Dynamic Routing (Path-Based Routing)
+    Load Balancing Works with Eureka or other service discovery tools.
+    Authentication & Authorization (JWT/OAuth2)
+    Rate Limiting
+    Circuit Breaker (Fault Tolerance)
+    Request & Response Modification
+    URL Rewriting
+    CORS Configuration  Handle cross-origin requests globally.
+     */
+
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
 
@@ -38,11 +49,17 @@ public class GatewayRoutesConfig {
                 .route("login-service", r -> r
                         .path("/auth/**")
                         .filters(f -> f
+                                .addRequestHeader("Authorization", "Bearer token")
                                 .addRequestHeader("X-Gateway", "Login-Service")
+                                .addRequestHeader("X-Gateway-Name", "Hari")
                                 //.removeRequestHeader("Cookie")
+                                .retry(retry -> retry
+                                        .setRetries(2)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                )
                                 .circuitBreaker(config -> config
                                         .setName("loginServiceCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/auth")
+                                        .setFallbackUri("forward:/fallback/login-service")
                                 )
                         )
                         .uri("lb://LOGIN-SERVICE")
@@ -53,9 +70,16 @@ public class GatewayRoutesConfig {
                         .path("/customers/**")
                         .filters(f -> f
                                 .addRequestHeader("X-Gateway", "Customer-Service")
+                                .addRequestHeader("Authorization", "Bearer token")
+                                .addRequestHeader("X-Gateway-Name", "Hari")
+                                //.removeRequestHeader("Cookie")
+                                .retry(retry -> retry
+                                        .setRetries(2)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                )
                                 .circuitBreaker(config -> config
                                         .setName("customerServiceCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/customers")
+                                        .setFallbackUri("forward:/fallback/customer-service")
                                 )
                         )
                         .uri("lb://CUSTOMER-SERVICE")
@@ -65,10 +89,16 @@ public class GatewayRoutesConfig {
                 .route("product-service", r -> r
                         .path("/products/**")
                         .filters(f -> f
-                                .addRequestHeader("X-Gateway", "Product-Service")
+                                .addRequestHeader("Authorization", "Bearer token")
+                                .addRequestHeader("X-Gateway-Name", "Hari")
+                                //.removeRequestHeader("Cookie")
+                                .retry(retry -> retry
+                                        .setRetries(2)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                )
                                 .circuitBreaker(config -> config
                                         .setName("productServiceCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/products")
+                                        .setFallbackUri("forward:/fallback/product-service")
                                 )
                         )
                         .uri("lb://PRODUCT-SERVICE")
@@ -78,7 +108,9 @@ public class GatewayRoutesConfig {
                 .route("order-service", r -> r
                         .path("/orders/**")
                         .filters(f -> f
-                                .addRequestHeader("X-Gateway", "Order-Service")
+                                .addRequestHeader("Authorization", "Bearer token")
+                                .addRequestHeader("X-Gateway-Name", "Hari")
+                                //.removeRequestHeader("Cookie")
                                 .retry(retry -> retry
                                         .setRetries(2)
                                         .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -95,10 +127,16 @@ public class GatewayRoutesConfig {
                 .route("payment-service", r -> r
                         .path("/payments/**")
                         .filters(f -> f
-                                .addRequestHeader("X-Gateway", "Payment-Service")
+                                .addRequestHeader("Authorization", "Bearer token")
+                                .addRequestHeader("X-Gateway-Name", "Hari")
+                                //.removeRequestHeader("Cookie")
+                                .retry(retry -> retry
+                                        .setRetries(2)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                )
                                 .circuitBreaker(config -> config
                                         .setName("paymentServiceCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/payments")
+                                        .setFallbackUri("forward:/fallback/payment-service")
                                 )
                         )
                         .uri("lb://PAYMENT-SERVICE")
@@ -108,10 +146,16 @@ public class GatewayRoutesConfig {
                 .route("payment-history-service", r -> r
                         .path("/payment-history/**")
                         .filters(f -> f
-                                .addRequestHeader("X-Gateway", "Payment-History-Service")
+                                .addRequestHeader("Authorization", "Bearer token")
+                                .addRequestHeader("X-Gateway-Name", "Hari")
+                                //.removeRequestHeader("Cookie")
+                                .retry(retry -> retry
+                                        .setRetries(2)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                )
                                 .circuitBreaker(config -> config
-                                        .setName("paymentServiceCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/payment-history")
+                                        .setName("paymentHistoryServiceCircuitBreaker")
+                                        .setFallbackUri("forward:/fallback/payment-history-service")
                                 )
                         )
                         .uri("lb://PAYMENT-HISTORY-SERVICE")
@@ -121,10 +165,16 @@ public class GatewayRoutesConfig {
                 .route("inventory-service", r -> r
                         .path("/inventory/**")
                         .filters(f -> f
-                                .addRequestHeader("X-Gateway", "Inventory-Service")
+                                .addRequestHeader("Authorization", "Bearer token")
+                                .addRequestHeader("X-Gateway-Name", "Hari")
+                                //.removeRequestHeader("Cookie")
+                                .retry(retry -> retry
+                                        .setRetries(2)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                )
                                 .circuitBreaker(config -> config
                                         .setName("inventoryServiceCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/inventory")
+                                        .setFallbackUri("forward:/fallback/inventory-service")
                                 )
                         )
                         .uri("lb://INVENTORY-SERVICE")
@@ -134,10 +184,16 @@ public class GatewayRoutesConfig {
                 .route("notification-service", r -> r
                         .path("/notifications/**")
                         .filters(f -> f
-                                .addRequestHeader("X-Gateway", "Notification-Service")
+                                .addRequestHeader("Authorization", "Bearer token")
+                                .addRequestHeader("X-Gateway-Name", "Hari")
+                                //.removeRequestHeader("Cookie")
+                                .retry(retry -> retry
+                                        .setRetries(2)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                )
                                 .circuitBreaker(config -> config
                                         .setName("notificationServiceCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/notifications")
+                                        .setFallbackUri("forward:/fallback/notification-service")
                                 )
                         )
                         .uri("lb://NOTIFICATION-SERVICE")
@@ -147,10 +203,16 @@ public class GatewayRoutesConfig {
                 .route("employee-service", r -> r
                         .path("/employees/**")
                         .filters(f -> f
-                                .addRequestHeader("X-Gateway", "Employee-Service")
+                                .addRequestHeader("Authorization", "Bearer token")
+                                .addRequestHeader("X-Gateway-Name", "Hari")
+                                //.removeRequestHeader("Cookie")
+                                .retry(retry -> retry
+                                        .setRetries(2)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                )
                                 .circuitBreaker(config -> config
                                         .setName("employeeServiceCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/employees")
+                                        .setFallbackUri("forward:/fallback/employee-service")
                                 )
                         )
                         .uri("lb://EMPLOYEE-SERVICE")
