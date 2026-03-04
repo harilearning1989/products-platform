@@ -2,9 +2,10 @@ package com.web.payment.services;
 
 import com.web.payment.dtos.OrderCreatedEvent;
 import com.web.payment.dtos.PaymentProcessedInternalEvent;
+import com.web.payment.dtos.PaymentResponse;
 import com.web.payment.enums.PaymentStatus;
+import com.web.payment.mappers.PaymentMapper;
 import com.web.payment.models.Payment;
-import com.web.payment.produce.PaymentEventProduce;
 import com.web.payment.repos.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +23,10 @@ import java.util.UUID;
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
-    private final PaymentRepository repository;
-    private final PaymentEventProduce paymentEventProduce;
     private final PaymentRepository paymentRepository;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final PaymentMapper paymentMapper;
 
     @Transactional
     public void processInventoryReserved(String json) {
@@ -62,6 +62,12 @@ public class PaymentServiceImpl implements PaymentService {
         eventPublisher.publishEvent(
                 new PaymentProcessedInternalEvent(payment, event.items())
         );
+    }
+
+    @Override
+    public PaymentResponse getPaymentByOrderId(Long orderId) {
+        Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        return paymentMapper.toPaymentResponse(payment);
     }
 
     private boolean processPayment(BigDecimal amount) {

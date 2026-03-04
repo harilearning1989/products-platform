@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 public class ServiceUrlConfig {
-    private String inventory;
-    private String product;
+    private String inventory;//inventory-service
+    private String product;//product-service
     private String payment;
     private String customer;
 }

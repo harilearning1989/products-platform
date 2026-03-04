@@ -3,6 +3,7 @@ package com.web.order.controls;
 import com.web.order.dtos.CreateOrderRequest;
 import com.web.order.dtos.OrderDetailsResponse;
 import com.web.order.dtos.OrderResponse;
+import com.web.order.services.MyService;
 import com.web.order.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ public class OrderRestController {
 
     private final OrderService orderService;
     private static int counter = 0;
+    private final MyService myService;
 
     @PostMapping
     public ResponseEntity<OrderResponse> createNewOrder(
@@ -39,7 +41,7 @@ public class OrderRestController {
     @GetMapping("/{id}")
     public OrderDetailsResponse getOrderDetails(
             @PathVariable Long id) {
-
+        myService.test();
         return orderService.getOrderDetails(id);
     }
 

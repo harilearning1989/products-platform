@@ -40,13 +40,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse createNewOrder(CreateOrderRequest request) {
-        List<Long> ids = request.items()
-                .stream()
-                .map(OrderItemRequest::productId)
-                .toList();
-
+        List<Long> productIds = productEnrichmentService.getProductIds(request.items());
         Map<Long, ProductResponse> productMap =
-                productEnrichmentService.fetchProductMap(ids);
+                productEnrichmentService.fetchProductMap(productIds);
 
         OrderProduct order = OrderProduct.builder()
                 .userId(request.userId())
@@ -57,7 +53,6 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal total = BigDecimal.ZERO;
 
         for (OrderItemRequest item : request.items()) {
-
             ProductResponse product =
                     productMap.get(item.productId());
 
@@ -66,8 +61,7 @@ public class OrderServiceImpl implements OrderService {
                         "Invalid product: " + item.productId());
             }
 
-            OrderItem orderItem =
-                    buildOrderItem(item, product, order);
+            OrderItem orderItem = orderMapper.buildOrderItem(item, product, order);
 
             total = total.add(orderItem.getLineTotal());
 
@@ -86,22 +80,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDetailsResponse getOrderDetails(Long orderId) {
-
         OrderProduct orderProduct =
                 orderProductRepository.findById(orderId)
                         .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        CustomerResponse customer =
-                customerClientWrapper.getCustomerById(orderProduct.getUserId());
+        CustomerResponse customer = customerClientWrapper.getCustomerById(orderProduct.getUserId());
 
-        PaymentResponse payment =
-                paymentClientWrapper.getPaymentByOrderId(orderId);
+        PaymentResponse payment = paymentClientWrapper.getPaymentByOrderId(orderId);
 
-        List<Long> productIds =
-                orderProduct.getItems()
-                        .stream()
-                        .map(OrderItem::getProductId)
-                        .toList();
+        List<Long> productIds = productEnrichmentService.getProductIdFromEntity(orderProduct.getItems());
 
         Map<Long, ProductResponse> productMap =
                 productEnrichmentService.fetchProductMap(productIds);
@@ -109,34 +96,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetailItemResponse> itemDetails =
                 mapToDetailItems(orderProduct.getItems(), productMap);
 
-        return new OrderDetailsResponse(
-                orderProduct.getId(),
-                orderProduct.getStatus(),
-                orderProduct.getTotalAmount(),
-                customer,
-                itemDetails,
-                payment
-        );
-    }
-
-    private OrderItem buildOrderItem(
-            OrderItemRequest requestItem,
-            ProductResponse product,
-            OrderProduct order) {
-
-        BigDecimal itemTotal =
-                product.price()
-                        .multiply(BigDecimal.valueOf(requestItem.quantity()));
-
-        OrderItem orderItem = new OrderItem();
-        orderItem.setProductId(product.id());
-        orderItem.setProductName(product.name());
-        orderItem.setPrice(product.price());
-        orderItem.setQuantity(requestItem.quantity());
-        orderItem.setLineTotal(itemTotal);
-        orderItem.setOrder(order);
-
-        return orderItem;
+        return orderMapper.getOrderDetailsResponse(orderProduct,customer,itemDetails,payment);
     }
 
     private List<OrderDetailItemResponse> mapToDetailItems(

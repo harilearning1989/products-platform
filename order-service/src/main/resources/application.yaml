@@ -55,6 +55,7 @@ services:
   inventory: inventory-service
   payment: payment-service
   customer: customer-service
+  age: 10
 
 resilience4j:
   circuitbreaker:

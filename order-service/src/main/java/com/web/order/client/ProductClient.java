@@ -9,7 +9,7 @@ import org.springframework.web.service.annotation.PostExchange;
 
 import java.util.List;
 
-@HttpExchange("/products")
+@HttpExchange("/products")//http://product-service//products/3
 public interface ProductClient {
     @GetExchange("/{id}")
     ProductResponse getProduct(@PathVariable Long id);

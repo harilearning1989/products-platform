@@ -1,0 +1,6 @@
+messages:
+  welcome: "Welcome user"
+  goodbye: "Goodbye user"
+  errors:
+    notFound: "Resource not found"
+    unauthorized: "Unauthorized access"

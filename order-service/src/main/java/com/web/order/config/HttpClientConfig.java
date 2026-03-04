@@ -39,9 +39,9 @@ public class HttpClientConfig {
         return createClient(InventoryClient.class, serviceUrls.getInventory());
     }
 
-    private <T> T createClient(Class<T> clazz, String serviceName) {
+    private <T> T createClient(Class<T> clazz, String serviceName) {//product-service
         WebClient webClient = webClientBuilder
-                .baseUrl("http://" + serviceName)
+                .baseUrl("http://" + serviceName)//http://product-service
                 .build();
 
         WebClientAdapter adapter = WebClientAdapter.create(webClient);
