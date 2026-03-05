@@ -7,7 +7,10 @@ import com.web.demo.records.Customer;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -26,7 +29,8 @@ public class CustomerServiceImpl implements CustomerService {
     public void loadCustomers() {
         this.customers = jsonFileReader.readListFromFile(
                 FILE_NAME,
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -38,10 +42,17 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer getCustomerById(Long id) {
         return customers.stream()
-                .filter(c -> c.id().equals(id))
+                .filter(c -> c.userId().equals(id))
                 .findFirst()
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Customer not found with id: " + id));
+    }
+
+    @Override
+    public List<Customer> getCustomers(List<Long> userIds) {
+        Set<Long> userIdSet = new HashSet<>(userIds);
+        return customers.stream()
+                .filter(customer -> userIdSet.contains(customer.userId())).toList();
     }
 }
 

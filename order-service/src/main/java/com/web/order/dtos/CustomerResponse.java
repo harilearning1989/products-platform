@@ -1,14 +1,12 @@
 package com.web.order.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.web.order.utils.DateUtils;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 public record CustomerResponse(
-        Long id,
+        Long userId,
         String email,
         String firstName,
         String lastName,
@@ -22,8 +20,6 @@ public record CustomerResponse(
             return null;
         }
 
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                .withZone(ZoneId.of("UTC"))
-                .format(createdAt);
+        return DateUtils.formatUtc(createdAt);
     }
 }

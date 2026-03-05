@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -69,6 +70,15 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
         return paymentMapper.toPaymentResponse(payment);
     }
+
+    @Override
+    public List<PaymentResponse> getPayments(List<Long> orderIds) {
+        return paymentRepository.findAllByOrderIdIn(orderIds)
+                .stream()
+                .map(paymentMapper::toPaymentResponse)
+                .toList();
+    }
+
 
     private boolean processPayment(BigDecimal amount) {
         return true;

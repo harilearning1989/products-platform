@@ -32,10 +32,12 @@ public class OrderRestController {
                 .body(response);
     }
 
-    @GetMapping
-    public ResponseEntity<List<OrderResponse>> getAllOrders() {
-        List<OrderResponse> orderResponses = orderService.findAllOrders();
-        return ResponseEntity.ok(orderResponses);
+    @GetMapping("/allOrders")
+    public ResponseEntity<List<OrderDetailsResponse>> getAllOrdersFull() {
+        List<OrderDetailsResponse> response =
+                orderService.getAllOrderDetails();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

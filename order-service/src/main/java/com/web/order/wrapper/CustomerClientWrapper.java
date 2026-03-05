@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -25,5 +26,9 @@ public class CustomerClientWrapper {
         log.error("Customer service is DOWN. Circuit breaker triggered.", ex);
 
         throw new RuntimeException("Product service unavailable. Try later.");
+    }
+
+    public List<CustomerResponse> getCustomersBulk(List<Long> userIds) {
+        return customerClient.getCustomersBulk(userIds);
     }
 }

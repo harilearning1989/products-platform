@@ -1,11 +1,12 @@
 package com.web.demo.records;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.Instant;
 
 public record Customer(
-        Long id,
+        @JsonAlias("id")
+        Long userId,
         String email,
         @JsonAlias("first")
         String firstName,

@@ -17,8 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -79,6 +82,76 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<OrderDetailsResponse> getAllOrderDetails() {
+
+        List<OrderProduct> orders = orderProductRepository.findAll();
+
+        if (orders.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 🔥 1️⃣ Collect all required IDs in bulk
+
+        List<Long> userIds = orders.stream()
+                .map(OrderProduct::getUserId)
+                .distinct()
+                .toList();
+
+        List<Long> orderIds = orders.stream()
+                .map(OrderProduct::getId)
+                .toList();
+
+        List<Long> productIds = orders.stream()
+                .flatMap(order -> order.getItems().stream())
+                .map(OrderItem::getProductId)
+                .distinct()
+                .toList();
+
+        // 🔥 2️⃣ Bulk fetch external data
+        List<CustomerResponse> allCustomers = customerClientWrapper.getCustomersBulk(userIds);
+
+        Map<Long, CustomerResponse> customerMap = allCustomers.stream()
+                .collect(Collectors.toMap(
+                        CustomerResponse::userId,
+                        p -> p
+                ));
+
+        List<PaymentResponse> allPayments = paymentClientWrapper.getPaymentsBulk(orderIds);
+        Map<Long, PaymentResponse> paymentMap = allPayments.stream()
+                .collect(Collectors.toMap(
+                        PaymentResponse::orderId,
+                        p -> p
+                ));
+
+        Map<Long, ProductResponse> productMap =
+                productEnrichmentService.fetchProductMap(productIds);
+
+        // 🔥 3️⃣ Build final response list
+
+        return orders.stream()
+                .map(order -> {
+
+                    CustomerResponse customer =
+                            customerMap.get(order.getUserId());
+
+                    PaymentResponse payment =
+                            paymentMap.getOrDefault(order.getId(), PaymentResponse.empty(order.getId()));
+
+                    List<OrderDetailItemResponse> itemDetails =
+                            mapToDetailItems(order.getItems(), productMap);
+
+                    return orderMapper.getOrderDetailsResponse(
+                            order,
+                            customer,
+                            itemDetails,
+                            payment
+                    );
+                })
+                .toList();
+    }
+
+    @Override
     public OrderDetailsResponse getOrderDetails(Long orderId) {
         OrderProduct orderProduct =
                 orderProductRepository.findById(orderId)
@@ -96,7 +169,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetailItemResponse> itemDetails =
                 mapToDetailItems(orderProduct.getItems(), productMap);
 
-        return orderMapper.getOrderDetailsResponse(orderProduct,customer,itemDetails,payment);
+        return orderMapper.getOrderDetailsResponse(orderProduct, customer, itemDetails, payment);
     }
 
     private List<OrderDetailItemResponse> mapToDetailItems(
@@ -117,137 +190,6 @@ public class OrderServiceImpl implements OrderService {
                     );
                 })
                 .toList();
-    }
-
-    /*
-    @Transactional
-    public OrderResponse createNewOrder(CreateOrderRequest request) {
-
-        // 1️⃣ Bulk fetch products
-        List<Long> ids = request.items()
-                .stream()
-                .map(OrderItemRequest::productId)
-                .toList();
-
-        List<ProductResponse> products =
-                productClientWrapper.fetchProducts(ids);
-
-        Map<Long, ProductResponse> productMap =
-                products.stream()
-                        .collect(Collectors.toMap(
-                                ProductResponse::id,
-                                p -> p
-                        ));
-
-        BigDecimal total = BigDecimal.ZERO;
-
-        OrderProduct order = OrderProduct.builder()
-                .userId(request.userId())
-                .customerEmail(request.customerEmail())
-                .status(OrderStatus.PENDING)
-                .build();
-
-        for (OrderItemRequest item : request.items()) {
-
-            ProductResponse product =
-                    productMap.get(item.productId());
-
-            if (product == null || !product.active()) {
-                throw new RuntimeException(
-                        "Invalid product: " + item.productId());
-            }
-
-            BigDecimal itemTotal =
-                    product.price()
-                            .multiply(BigDecimal.valueOf(item.quantity()));
-
-            total = total.add(itemTotal);
-
-            OrderItem orderItem = new OrderItem();
-            orderItem.setProductId(product.id());
-            orderItem.setProductName(product.name());
-            orderItem.setPrice(product.price());
-            orderItem.setQuantity(item.quantity());
-            orderItem.setLineTotal(itemTotal);
-            orderItem.setOrder(order);
-
-            order.getItems().add(orderItem);
-        }
-
-        order.setTotalAmount(total);
-
-        order = orderProductRepository.save(order);
-
-        // 🔥 Publish INTERNAL domain event
-        eventPublisher.publishEvent(
-                new OrderCreatedDomainEvent(order.getId()));
-
-        return orderMapper.toResponse(order);
-    }
-
-    public OrderDetailsResponse getOrderDetails(Long orderId) {
-        // 1️⃣ Get Order
-        OrderProduct orderProduct = orderProductRepository
-                .findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        // 2️⃣ Get Customer
-        CustomerResponse customer =
-                customerClientWrapper.getCustomerById(orderProduct.getUserId());
-
-        // 3️⃣ Get Payment
-        PaymentResponse payment =
-                paymentClientWrapper.getPaymentByOrderId(orderId);
-
-        // 4️⃣ Get Product Details (bulk)
-        List<Long> productIds =
-                orderProduct.getItems()
-                        .stream()
-                        .map(OrderItem::getProductId)
-                        .toList();
-
-        List<ProductResponse> products =
-                productClientWrapper.fetchProducts(productIds);
-
-        Map<Long, ProductResponse> productMap =
-                products.stream()
-                        .collect(Collectors.toMap(
-                                ProductResponse::id,
-                                p -> p
-                        ));
-
-        // 5️⃣ Build Final Response
-        List<OrderDetailItemResponse> itemDetails =
-                orderProduct.getItems()
-                        .stream()
-                        .map(item -> {
-
-                            ProductResponse product =
-                                    productMap.get(item.getProductId());
-
-                            return new OrderDetailItemResponse(
-                                    item.getProductId(),
-                                    product.name(),
-                                    item.getPrice(),
-                                    item.getQuantity()
-                            );
-                        })
-                        .toList();
-
-        return new OrderDetailsResponse(
-                orderProduct.getId(),
-                orderProduct.getStatus(),
-                orderProduct.getTotalAmount(),
-                customer,
-                itemDetails,
-                payment
-        );
-    }*/
-
-    @Override
-    public List<OrderResponse> findAllOrders() {
-        List<OrderProduct> allOrders = orderProductRepository.findAll();
-        return orderMapper.toResponseList(allOrders);
     }
 
 }

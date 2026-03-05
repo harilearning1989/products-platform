@@ -25,5 +25,11 @@ public class CustomerRestController {
     public Customer getCustomerById(@PathVariable Long id) {
         return customerService.getCustomerById(id);
     }
+
+    @PostMapping("/bulk")
+    public List<Customer> getCustomers(
+            @RequestBody List<Long> userIds) {
+        return customerService.getCustomers(userIds);
+    }
 }
 

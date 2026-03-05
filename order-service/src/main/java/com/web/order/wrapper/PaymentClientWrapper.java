@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,4 +26,10 @@ public class PaymentClientWrapper {
 
         throw new RuntimeException("Product service unavailable. Try later.");
     }
+
+    @CircuitBreaker(name = "paymentService", fallbackMethod = "paymentFallback")
+    public List<PaymentResponse> getPaymentsBulk(List<Long> orderIds) {
+        return paymentClient.fetchAllPayments(orderIds);
+    }
+
 }

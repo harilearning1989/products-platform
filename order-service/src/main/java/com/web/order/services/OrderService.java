@@ -11,7 +11,7 @@ public interface OrderService {
 
     OrderResponse createNewOrder(CreateOrderRequest request);
 
-    List<OrderResponse> findAllOrders();
-
     OrderDetailsResponse getOrderDetails(Long id);
+
+    List<OrderDetailsResponse> getAllOrderDetails();
 }
