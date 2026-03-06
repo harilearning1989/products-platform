@@ -1,4 +1,4 @@
-package com.web.order.dtos;
+package com.product.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

@@ -1,3 +1,3 @@
-package com.web.order.dtos;
+package com.product.dtos;
 
 public record OrderCreatedDomainEvent(Long orderId) {}

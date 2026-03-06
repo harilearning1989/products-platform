@@ -1,7 +1,7 @@
 package com.web.order.listener;
 
-import com.web.order.dtos.PaymentStatusEvent;
-import com.web.order.enums.OrderStatus;
+import com.product.dtos.PaymentStatusEvent;
+import com.product.enums.OrderStatus;
 import com.web.order.models.OrderProduct;
 import com.web.order.repos.OrderProductRepository;
 import lombok.RequiredArgsConstructor;

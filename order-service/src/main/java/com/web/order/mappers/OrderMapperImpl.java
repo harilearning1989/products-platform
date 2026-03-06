@@ -1,6 +1,6 @@
 package com.web.order.mappers;
 
-import com.web.order.dtos.*;
+import com.product.dtos.*;
 import com.web.order.models.OrderItem;
 import com.web.order.models.OrderProduct;
 import org.springframework.stereotype.Component;

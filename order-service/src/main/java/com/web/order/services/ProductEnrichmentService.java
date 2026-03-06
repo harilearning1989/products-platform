@@ -1,7 +1,7 @@
 package com.web.order.services;
 
-import com.web.order.dtos.OrderItemRequest;
-import com.web.order.dtos.ProductResponse;
+import com.product.dtos.OrderItemRequest;
+import com.product.dtos.ProductResponse;
 import com.web.order.models.OrderItem;
 import com.web.order.wrapper.ProductClientWrapper;
 import lombok.RequiredArgsConstructor;

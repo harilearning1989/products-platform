@@ -1,7 +1,7 @@
 package com.web.order.services;
 
-import com.web.order.dtos.*;
-import com.web.order.enums.OrderStatus;
+import com.product.dtos.*;
+import com.product.enums.OrderStatus;
 import com.web.order.mappers.OrderMapper;
 import com.web.order.models.OrderItem;
 import com.web.order.models.OrderProduct;
@@ -17,7 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

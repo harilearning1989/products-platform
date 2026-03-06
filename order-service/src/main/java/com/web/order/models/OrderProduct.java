@@ -1,6 +1,6 @@
 package com.web.order.models;
 
-import com.web.order.enums.OrderStatus;
+import com.product.enums.OrderStatus;
 import jakarta.persistence.*;
         import lombok.*;
 

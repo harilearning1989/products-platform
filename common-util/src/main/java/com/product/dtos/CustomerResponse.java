@@ -1,7 +1,7 @@
-package com.web.order.dtos;
+package com.product.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.web.order.utils.DateUtils;
+import com.product.util.DateUtils;
 
 import java.time.Instant;
 

@@ -1,7 +1,7 @@
 package com.web.order.wrapper;
 
+import com.product.dtos.ProductResponse;
 import com.web.order.client.ProductClient;
-import com.web.order.dtos.ProductResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,8 +1,10 @@
 package com.web.order.controls;
 
-import com.web.order.dtos.CreateOrderRequest;
-import com.web.order.dtos.OrderDetailsResponse;
-import com.web.order.dtos.OrderResponse;
+import com.product.dtos.CreateOrderRequest;
+import com.product.dtos.OrderDetailsResponse;
+import com.product.dtos.OrderResponse;
+import com.product.dtos.User;
+import com.product.util.JsonUtil;
 import com.web.order.services.MyService;
 import com.web.order.services.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +80,20 @@ public class OrderRestController {
         System.out.println("slowResponse Attempt: " + counter);
         TimeUnit.SECONDS.sleep(6);
         return ResponseEntity.ok("Response after 10 seconds");
+    }
+
+    @GetMapping("/common")
+    public String helloWorld() {
+        User userDto = new User("Haridu", 18);
+        String jsonData = JsonUtil.toJson(userDto);
+        System.out.println(jsonData);
+        userDto = JsonUtil.fromJson(jsonData, User.class);
+        System.out.println(userDto);
+
+        String prettyJson = JsonUtil.toPrettyJson(userDto);
+        System.out.println(prettyJson);
+
+        return "Hello World";
     }
 
 }

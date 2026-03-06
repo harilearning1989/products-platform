@@ -1,7 +1,7 @@
 package com.web.order.wrapper;
 
+import com.product.dtos.PaymentResponse;
 import com.web.order.client.PaymentClient;
-import com.web.order.dtos.PaymentResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class PaymentClientWrapper {
     public PaymentResponse paymentFallback(Long orderId, Throwable ex) {
         log.error("Payment service is DOWN. Circuit breaker triggered.", ex);
 
-        throw new RuntimeException("Product service unavailable. Try later."+orderId);
+        throw new RuntimeException("Product service unavailable. Try later." + orderId);
     }
 
     public List<PaymentResponse> getBulkPaymentFallback(List<Long> orderIds, Throwable ex) {

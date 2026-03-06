@@ -1,6 +1,6 @@
-package com.web.order.dtos;
+package com.product.dtos;
 
-import com.web.order.enums.OrderStatus;
+import com.product.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;

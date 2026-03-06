@@ -1,8 +1,8 @@
 package com.web.order.producer;
 
-import com.web.order.dtos.OrderCreatedDomainEvent;
-import com.web.order.dtos.OrderCreatedEvent;
-import com.web.order.dtos.OrderItemEvent;
+import com.product.dtos.OrderCreatedDomainEvent;
+import com.product.dtos.OrderCreatedEvent;
+import com.product.dtos.OrderItemEvent;
 import com.web.order.models.OrderProduct;
 import com.web.order.repos.OrderProductRepository;
 import lombok.RequiredArgsConstructor;

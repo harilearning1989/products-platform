@@ -1,6 +1,6 @@
 package com.web.order.client;
 
-import com.web.order.dtos.PaymentResponse;
+import com.product.dtos.PaymentResponse;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.service.annotation.GetExchange;

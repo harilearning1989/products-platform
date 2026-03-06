@@ -1,0 +1,54 @@
+//ls ~/.m2
+//ls ~/.m2/repository/com/web/utils
+//ls ~/.m2/repository/com/web/utils/common-util
+//ls ~/.m2/repository/com/web/utils/common-util/1.0-SNAPSHOT
+
+//./gradlew publishToMavenLocal
+
+//./gradlew build
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+/*
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+ */
+
+group = 'com.web.utils'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+

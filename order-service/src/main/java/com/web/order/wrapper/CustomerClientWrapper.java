@@ -1,14 +1,13 @@
 package com.web.order.wrapper;
 
+import com.product.dtos.CustomerResponse;
 import com.web.order.client.CustomerClient;
-import com.web.order.dtos.CustomerResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
