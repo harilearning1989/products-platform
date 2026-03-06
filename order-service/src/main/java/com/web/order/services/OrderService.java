@@ -14,4 +14,8 @@ public interface OrderService {
     OrderDetailsResponse getOrderDetails(Long id);
 
     List<OrderDetailsResponse> getAllOrderDetails();
+
+    List<OrderDetailsResponse> getAllOrderDetails(String status);
+
+    List<OrderDetailsResponse> getAllOrdersByUserId(Long userId);
 }

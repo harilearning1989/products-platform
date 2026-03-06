@@ -8,6 +8,7 @@ import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 
 import java.util.List;
+import java.util.Set;
 
 @HttpExchange("/products")//http://product-service//products/3
 public interface ProductClient {
@@ -16,5 +17,5 @@ public interface ProductClient {
 
     @PostExchange("/bulk")
     List<ProductResponse> getProducts(
-            @RequestBody List<Long> ids);
+            @RequestBody Set<Long> ids);
 }

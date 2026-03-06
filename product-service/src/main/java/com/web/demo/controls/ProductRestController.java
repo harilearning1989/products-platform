@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/products")
@@ -59,7 +60,7 @@ public class ProductRestController {
 
     @PostMapping("/bulk")
     public List<ProductResponse> getProducts(
-            @RequestBody List<Long> ids) {
+            @RequestBody Set<Long> ids) {
 
         return productService.getProductsByIds(ids);
     }

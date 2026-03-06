@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -18,13 +19,15 @@ public class ProductClientWrapper {
 
     //@Retry(name = "productService")
     @CircuitBreaker(name = "productService", fallbackMethod = "productFallback")
-    public List<ProductResponse> fetchProducts(List<Long> ids) {
+    public List<ProductResponse> fetchProducts(Set<Long> ids) {
         return productClient.getProducts(ids);
     }
 
-    public List<ProductResponse> productFallback(List<Long> ids, Throwable ex) {
+    public List<ProductResponse> productFallback(Set<Long> ids, Throwable ex) {
         log.error("Product service is DOWN. Circuit breaker triggered.", ex);
 
-        throw new RuntimeException("Product service unavailable. Try later.");
+        return ids.stream()
+                .map(ProductResponse::empty)
+                .toList();
     }
 }

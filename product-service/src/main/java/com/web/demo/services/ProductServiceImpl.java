@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -131,7 +132,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public List<ProductResponse> getProductsByIds(
-            List<Long> ids) {
+            Set<Long> ids) {
         return repository.findAllById(ids)
                 .stream()
                 .map(this::mapToResponse)

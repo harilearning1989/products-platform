@@ -21,15 +21,23 @@ public class PaymentClientWrapper {
         return paymentClient.getPaymentByOrderId(orderId);
     }
 
+    @CircuitBreaker(name = "paymentService", fallbackMethod = "getBulkPaymentFallback")
+    public List<PaymentResponse> getPaymentsBulk(List<Long> orderIds) {
+        return paymentClient.fetchAllPayments(orderIds);
+    }
+
     public PaymentResponse paymentFallback(Long orderId, Throwable ex) {
         log.error("Payment service is DOWN. Circuit breaker triggered.", ex);
 
-        throw new RuntimeException("Product service unavailable. Try later.");
+        throw new RuntimeException("Product service unavailable. Try later."+orderId);
     }
 
-    @CircuitBreaker(name = "paymentService", fallbackMethod = "paymentFallback")
-    public List<PaymentResponse> getPaymentsBulk(List<Long> orderIds) {
-        return paymentClient.fetchAllPayments(orderIds);
+    public List<PaymentResponse> getBulkPaymentFallback(List<Long> orderIds, Throwable ex) {
+        log.error("Payment service DOWN for bulk orders {}", orderIds, ex);
+
+        return orderIds.stream()
+                .map(PaymentResponse::empty)
+                .toList();
     }
 
 }

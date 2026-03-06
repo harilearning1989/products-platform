@@ -68,6 +68,7 @@ public class OrderMapperImpl implements OrderMapper {
                                                         PaymentResponse payment) {
         return new OrderDetailsResponse(
                 orderProduct.getId(),
+                orderProduct.getUserId(),
                 orderProduct.getStatus(),
                 orderProduct.getTotalAmount(),
                 customer,

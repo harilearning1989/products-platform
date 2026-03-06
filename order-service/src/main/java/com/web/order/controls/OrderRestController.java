@@ -36,7 +36,20 @@ public class OrderRestController {
     public ResponseEntity<List<OrderDetailsResponse>> getAllOrdersFull() {
         List<OrderDetailsResponse> response =
                 orderService.getAllOrderDetails();
+        return ResponseEntity.ok(response);
+    }
 
+    @GetMapping("/allOrders/{status}")
+    public ResponseEntity<List<OrderDetailsResponse>> getAllOrdersByStatus(
+            @PathVariable(value = "status") String orderStatus) {
+        List<OrderDetailsResponse> response = orderService.getAllOrderDetails(orderStatus);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/allOrders/user/{userId}")
+    public ResponseEntity<List<OrderDetailsResponse>> getAllOrdersByUserId(
+            @PathVariable(value = "userId") Long userId) {
+        List<OrderDetailsResponse> response = orderService.getAllOrdersByUserId(userId);
         return ResponseEntity.ok(response);
     }
 

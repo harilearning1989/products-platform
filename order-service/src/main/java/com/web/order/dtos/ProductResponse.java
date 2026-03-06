@@ -1,8 +1,11 @@
 package com.web.order.dtos;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProductResponse(Long id,
                               String sku,
                               String name,
@@ -14,4 +17,19 @@ public record ProductResponse(Long id,
                               String description,
                               Instant createdAt,
                               Instant updatedAt) {
+    public static ProductResponse empty(Long id) {
+        return new ProductResponse(
+                id,
+                null,
+                "Product unavailable",
+                null,
+                null,
+                BigDecimal.ZERO,
+                null,
+                false,
+                "Fallback product - service unavailable",
+                null,
+                null
+        );
+    }
 }

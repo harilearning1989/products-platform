@@ -17,10 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse createNewOrder(CreateOrderRequest request) {
-        List<Long> productIds = productEnrichmentService.getProductIds(request.items());
+        Set<Long> productIds = productEnrichmentService.getProductIds(request.items());
         Map<Long, ProductResponse> productMap =
                 productEnrichmentService.fetchProductMap(productIds);
 
@@ -83,16 +80,32 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<OrderDetailsResponse> getAllOrderDetails(String status) {
+        OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
+        List<OrderProduct> orders = orderProductRepository.findByStatus(orderStatus);
+        return buildOrderDetailsResponse(orders);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrderDetailsResponse> getAllOrdersByUserId(Long userId) {
+        List<OrderProduct> orders = orderProductRepository.findByUserId(userId);
+        return buildOrderDetailsResponse(orders);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<OrderDetailsResponse> getAllOrderDetails() {
-
         List<OrderProduct> orders = orderProductRepository.findAll();
+        return buildOrderDetailsResponse(orders);
+    }
 
+    private List<OrderDetailsResponse> buildOrderDetailsResponse(List<OrderProduct> orders) {
         if (orders.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // 🔥 1️⃣ Collect all required IDs in bulk
-
+        // 1️⃣ Collect IDs
         List<Long> userIds = orders.stream()
                 .map(OrderProduct::getUserId)
                 .distinct()
@@ -102,41 +115,35 @@ public class OrderServiceImpl implements OrderService {
                 .map(OrderProduct::getId)
                 .toList();
 
-        List<Long> productIds = orders.stream()
+        Set<Long> productIds = orders.stream()
                 .flatMap(order -> order.getItems().stream())
                 .map(OrderItem::getProductId)
-                .distinct()
-                .toList();
+                .collect(Collectors.toSet());
 
-        // 🔥 2️⃣ Bulk fetch external data
+        // 2️⃣ Fetch external data
         List<CustomerResponse> allCustomers = customerClientWrapper.getCustomersBulk(userIds);
 
         Map<Long, CustomerResponse> customerMap = allCustomers.stream()
-                .collect(Collectors.toMap(
-                        CustomerResponse::userId,
-                        p -> p
-                ));
+                .collect(Collectors.toMap(CustomerResponse::userId, p -> p));
 
         List<PaymentResponse> allPayments = paymentClientWrapper.getPaymentsBulk(orderIds);
+
         Map<Long, PaymentResponse> paymentMap = allPayments.stream()
-                .collect(Collectors.toMap(
-                        PaymentResponse::orderId,
-                        p -> p
-                ));
+                .collect(Collectors.toMap(PaymentResponse::orderId, p -> p));
 
         Map<Long, ProductResponse> productMap =
                 productEnrichmentService.fetchProductMap(productIds);
 
-        // 🔥 3️⃣ Build final response list
-
+        // 3️⃣ Build response
         return orders.stream()
                 .map(order -> {
 
-                    CustomerResponse customer =
-                            customerMap.get(order.getUserId());
+                    CustomerResponse customer = customerMap.get(order.getUserId());
 
-                    PaymentResponse payment =
-                            paymentMap.getOrDefault(order.getId(), PaymentResponse.empty(order.getId()));
+                    PaymentResponse payment = paymentMap.getOrDefault(
+                            order.getId(),
+                            PaymentResponse.empty(order.getId())
+                    );
 
                     List<OrderDetailItemResponse> itemDetails =
                             mapToDetailItems(order.getItems(), productMap);
@@ -161,7 +168,7 @@ public class OrderServiceImpl implements OrderService {
 
         PaymentResponse payment = paymentClientWrapper.getPaymentByOrderId(orderId);
 
-        List<Long> productIds = productEnrichmentService.getProductIdFromEntity(orderProduct.getItems());
+        Set<Long> productIds = productEnrichmentService.getProductIdFromEntity(orderProduct.getItems());
 
         Map<Long, ProductResponse> productMap =
                 productEnrichmentService.fetchProductMap(productIds);

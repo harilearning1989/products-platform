@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,7 +18,7 @@ public class ProductEnrichmentService {
 
     private final ProductClientWrapper productClientWrapper;
 
-    public Map<Long, ProductResponse> fetchProductMap(List<Long> productIds) {
+    public Map<Long, ProductResponse> fetchProductMap(Set<Long> productIds) {
         List<ProductResponse> products =
                 productClientWrapper.fetchProducts(productIds);
 
@@ -28,17 +29,17 @@ public class ProductEnrichmentService {
                 ));
     }
 
-    public List<Long> getProductIds(List<OrderItemRequest> items) {
+    public Set<Long> getProductIds(List<OrderItemRequest> items) {
         return items
                 .stream()
                 .map(OrderItemRequest::productId)
-                .toList();
+                .collect(Collectors.toSet());
     }
 
-    public List<Long> getProductIdFromEntity(List<OrderItem> items) {
+    public Set<Long> getProductIdFromEntity(List<OrderItem> items) {
         return items
                 .stream()
                 .map(OrderItem::getProductId)
-                .toList();
+                .collect(Collectors.toSet());
     }
 }
