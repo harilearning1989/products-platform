@@ -82,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public List<OrderDetailsResponse> getAllOrderDetails(String status) {
         OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
-        List<OrderProduct> orders = orderProductRepository.findByStatus(orderStatus);
+        List<OrderProduct> orders = orderProductRepository.findByStatusWithItems(orderStatus);
         return buildOrderDetailsResponse(orders);
     }
 
