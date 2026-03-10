@@ -8,6 +8,8 @@ import com.product.util.JsonUtil;
 import com.web.order.services.MyService;
 import com.web.order.services.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderRestController {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderRestController.class);
 
     private final OrderService orderService;
     private static int counter = 0;
@@ -36,6 +40,7 @@ public class OrderRestController {
 
     @GetMapping("/allOrders")
     public ResponseEntity<List<OrderDetailsResponse>> getAllOrdersFull() {
+        logger.info("Orders Fetched successfully");
         List<OrderDetailsResponse> response =
                 orderService.getAllOrderDetails();
         return ResponseEntity.ok(response);
