@@ -1,8 +1,8 @@
 package com.web.notification.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.web.notification.dtos.PaymentFailedEvent;
-import com.web.notification.dtos.PaymentSuccessEvent;
+import com.product.dtos.PaymentFailedEvent;
+import com.product.dtos.PaymentSuccessEvent;
 import com.web.notification.models.Notification;
 import com.web.notification.repos.NotificationRepository;
 import com.web.notification.services.EmailService;

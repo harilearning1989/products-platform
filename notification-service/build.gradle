@@ -15,6 +15,7 @@ java {
 }
 
 repositories {
+    mavenLocal()
 	mavenCentral()
 }
 
@@ -28,6 +29,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    implementation 'com.web.utils:common-util:1.0-SNAPSHOT'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
     compileOnly 'org.projectlombok:lombok'

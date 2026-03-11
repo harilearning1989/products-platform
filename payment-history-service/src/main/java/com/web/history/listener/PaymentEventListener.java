@@ -2,8 +2,8 @@ package com.web.history.listener;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.web.history.dtos.PaymentFailedEvent;
-import com.web.history.dtos.PaymentSuccessEvent;
+import com.product.dtos.PaymentFailedEvent;
+import com.product.dtos.PaymentSuccessEvent;
 import com.web.history.models.PaymentHistory;
 import com.web.history.repos.PaymentHistoryRepository;
 import lombok.RequiredArgsConstructor;

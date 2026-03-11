@@ -1,10 +1,8 @@
 <configuration>
     <springProperty scope="context" name="appName" source="spring.application.name"/>
     <springProperty scope="context" name="env" source="spring.profiles.active"/>
-
     <!-- Console Appender -->
     <include resource="logback/base-logback.xml"/>
-
     <!-- Logstash Appender -->
     <appender name="LOGSTASH"
               class="net.logstash.logback.appender.LogstashTcpSocketAppender">
@@ -20,5 +18,4 @@
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="LOGSTASH"/>
     </root>
-
 </configuration>
