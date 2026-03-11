@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.util.List;
 
 public record OrderResponse(
-        Long id,
+        Long orderId,
         Long userId,
         String customerEmail,
         BigDecimal totalAmount,

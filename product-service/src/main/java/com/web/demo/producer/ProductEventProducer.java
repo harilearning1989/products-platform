@@ -1,6 +1,6 @@
 package com.web.demo.producer;
 
-import com.web.demo.dtos.ProductCreateDto;
+import com.product.dtos.ProductCreateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,8 @@
 package com.web.demo.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.web.demo.dtos.ProductRequest;
-import com.web.demo.dtos.ProductResponse;
+import com.product.dtos.ProductRequest;
+import com.product.dtos.ProductResponse;
 import com.web.demo.exceptions.ProductNotFoundException;
 import com.web.demo.exceptions.ResourceNotFoundException;
 import com.web.demo.models.Product;

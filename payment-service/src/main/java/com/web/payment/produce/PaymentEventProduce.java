@@ -1,7 +1,7 @@
 package com.web.payment.produce;
 
-import com.web.payment.dtos.PaymentFailedEvent;
-import com.web.payment.dtos.PaymentSuccessEvent;
+import com.product.dtos.PaymentFailedEvent;
+import com.product.dtos.PaymentSuccessEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;

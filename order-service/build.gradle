@@ -31,6 +31,8 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
     implementation 'com.web.utils:common-util:1.0-SNAPSHOT'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'

@@ -1,7 +1,7 @@
 package com.web.demo.services;
 
-import com.web.demo.dtos.ProductRequest;
-import com.web.demo.dtos.ProductResponse;
+import com.product.dtos.ProductRequest;
+import com.product.dtos.ProductResponse;
 import com.web.demo.records.ProductDto;
 import org.springframework.data.domain.Page;
 

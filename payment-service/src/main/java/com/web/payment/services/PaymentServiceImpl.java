@@ -1,6 +1,6 @@
 package com.web.payment.services;
 
-import com.web.payment.dtos.OrderCreatedEvent;
+import com.product.dtos.OrderCreatedEvent;
 import com.web.payment.dtos.PaymentProcessedInternalEvent;
 import com.web.payment.dtos.PaymentResponse;
 import com.web.payment.enums.PaymentStatus;

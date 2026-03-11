@@ -1,4 +1,4 @@
-package com.web.demo.dtos;
+package com.product.dtos;
 
 import java.math.BigDecimal;
 

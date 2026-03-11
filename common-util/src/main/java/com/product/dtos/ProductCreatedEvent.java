@@ -1,4 +1,4 @@
-package com.web.demo.dtos;
+package com.product.dtos;
 
 public record ProductCreatedEvent( Long productId,
                                    String productName) {

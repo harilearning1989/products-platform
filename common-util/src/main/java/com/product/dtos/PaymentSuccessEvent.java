@@ -1,4 +1,4 @@
-package com.web.payment.dtos;
+package com.product.dtos;
 
 import java.math.BigDecimal;
 import java.time.Instant;
