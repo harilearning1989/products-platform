@@ -11,13 +11,6 @@ plugins {
     id 'java-library'
     id 'maven-publish'
 }
-/*
-plugins {
-    id 'java'
-    id 'maven-publish'
-}
-
- */
 
 group = 'com.web.utils'
 version = '1.0-SNAPSHOT'
@@ -34,6 +27,8 @@ repositories {
 
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+    // Needed for RestControllerAdvice, ExceptionHandler, ProblemDetail
+    compileOnly 'org.springframework:spring-webmvc:6.1.8'
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

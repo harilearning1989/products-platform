@@ -3,14 +3,18 @@ package com.web.demo.services;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.product.dtos.ProductRequest;
 import com.product.dtos.ProductResponse;
-import com.web.demo.exceptions.ProductNotFoundException;
-import com.web.demo.exceptions.ResourceNotFoundException;
+import com.product.exceptions.DuplicateResourceException;
+import com.product.exceptions.ProductNotFoundException;
+import com.product.exceptions.ResourceNotFoundException;
 import com.web.demo.models.Product;
 import com.web.demo.producer.ProductEventProducer;
 import com.web.demo.reader.JsonFileReader;
 import com.web.demo.records.ProductDto;
 import com.web.demo.repos.ProductRepository;
 import jakarta.annotation.PostConstruct;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -56,6 +60,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    @Cacheable(value = "productById", key = "#id")
     public ProductDto getProductById(Long id) {
         return products.stream()
                 .filter(c -> c.id().equals(id))
@@ -65,10 +70,10 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    @CachePut(value = "products", key = "#result.id")
     public ProductResponse create(ProductRequest request) {
-
         if (repository.existsBySku(request.sku())) {
-            throw new RuntimeException("SKU already exists");
+            throw new DuplicateResourceException("SKU already exists");
         }
 
         Product product = repository.save(Product.builder()
@@ -89,6 +94,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    @CachePut(value = "products", key = "#id")
     public ProductResponse update(Long id, ProductRequest request) {
 
         Product product = repository.findById(id)
@@ -123,8 +129,9 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    @CacheEvict(value = "products", key = "#id")
     public void delete(Long id) {
-        com.web.demo.models.Product product = repository.findById(id)
+        Product product = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
         product.setActive(false); // soft delete
@@ -137,6 +144,26 @@ public class ProductServiceImpl implements ProductService{
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @CacheEvict(value="users", allEntries = true)
+    public void refreshUsers() {
+        // reload database
+    }
+
+    @Cacheable(value="products", key="#category + ':' + #id")
+    public Product getProduct(String category, Long id){
+        return null;
+    }
+
+    @Cacheable(value = "users", key = "#id", unless = "#result == null")
+    public Product getUser(Long id) {
+        return null;
+    }
+
+    @Cacheable(value = "users", key = "#id", condition = "#id > 10")
+    public Product getUser1(Long id) {
+        return null;
     }
 
     private ProductResponse mapToResponse(Product product) {
