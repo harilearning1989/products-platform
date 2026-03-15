@@ -1,8 +1,9 @@
 package com.web.inventory.services;
 
+import com.product.exceptions.InventoryNotFoundException;
+import com.product.exceptions.NoStockAvailableException;
 import com.web.inventory.dtos.InventoryDto;
 import com.web.inventory.dtos.OrderItemEvent;
-import com.web.inventory.exceptions.InventoryNotFoundException;
 import com.web.inventory.models.Inventory;
 import com.web.inventory.repos.InventoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class InventoryServiceImpl implements InventoryService {
         Inventory inventory = getInventoryEntity(productId);
 
         if (inventory.getAvailableQuantity() < quantity) {
-            throw new RuntimeException("Not enough stock available");
+            throw new NoStockAvailableException(productId);
         }
 
         inventory.setAvailableQuantity(

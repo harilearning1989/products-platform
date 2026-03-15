@@ -26,13 +26,33 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
-    // Needed for RestControllerAdvice, ExceptionHandler, ProblemDetail
+    // JSON support
+    api 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+
+    // Logging API (implementation provided by Spring Boot apps)
+    compileOnly 'org.slf4j:slf4j-api:2.0.13'
+
+    // Servlet API (provided by Spring Boot / Tomcat)
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+    // Spring Web for ProblemDetail, RestControllerAdvice etc.
+    compileOnly 'org.springframework:spring-web:6.1.8'
     compileOnly 'org.springframework:spring-webmvc:6.1.8'
 
+    // Needed if using @ConfigurationProperties
+    compileOnly 'org.springframework.boot:spring-boot-autoconfigure:3.3.1'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:3.3.1'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.32'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+
+    // Testing
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 publishing {
@@ -46,4 +66,3 @@ publishing {
 test {
     useJUnitPlatform()
 }
-

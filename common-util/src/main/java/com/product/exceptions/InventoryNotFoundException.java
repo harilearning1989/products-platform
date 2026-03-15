@@ -1,4 +1,4 @@
-package com.web.inventory.exceptions;
+package com.product.exceptions;
 
 public class InventoryNotFoundException extends RuntimeException {
 

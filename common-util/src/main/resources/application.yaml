@@ -1,0 +1,4 @@
+api:
+  errors:
+    no-stock: /errors/no-stock
+    product-not-found: /errors/product-not-found

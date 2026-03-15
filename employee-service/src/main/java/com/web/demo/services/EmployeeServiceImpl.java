@@ -1,7 +1,7 @@
 package com.web.demo.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.web.demo.exceptions.ResourceNotFoundException;
+import com.product.exceptions.ResourceNotFoundException;
 import com.web.demo.reader.JsonFileReader;
 import com.web.demo.records.Employee;
 import jakarta.annotation.PostConstruct;
