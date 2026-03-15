@@ -21,6 +21,7 @@ spring:
       host: localhost
       port: 30079
       timeout: 60000
+      password: redispassword
 
   kafka:
     bootstrap-servers: localhost:9092

@@ -1,5 +1,6 @@
 package com.web.inventory.listener;
 
+import com.product.topics.KafkaTopicConstants;
 import com.web.inventory.dtos.ProductCreateDto;
 import com.web.inventory.models.Inventory;
 import com.web.inventory.services.InventoryService;
@@ -18,7 +19,7 @@ public class ProductCreatedListener {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = "product-created-topic",
+            topics = KafkaTopicConstants.PRODUCT_CREATED_TOPIC,
             groupId = "product-group"
     )
     public void consume(
@@ -29,11 +30,9 @@ public class ProductCreatedListener {
     ) {
         ProductCreateDto event = objectMapper.readValue(productCreateJson, ProductCreateDto.class);
 
-        System.out.println("📦 Received Product Event:");
-        System.out.println("Topic: " + topic);
-        System.out.println("Partition: " + partition);
-        System.out.println("Offset: " + offset);
-        System.out.println("Event Data: " + event);
+        System.out.println("📦 Product Event | Topic: %s | Partition: %s | Offset: %s | Product Name: %s | Product Id: %s"
+                        .formatted(topic, partition, offset, event.productName(), event.productId())
+        );
 
         // Business logic here
         System.out.println("Product Name : %s and Product Id : %s".formatted(event.productName(), event.productId()));

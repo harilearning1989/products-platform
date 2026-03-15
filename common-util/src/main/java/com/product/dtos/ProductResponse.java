@@ -2,6 +2,7 @@ package com.product.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -16,7 +17,7 @@ public record ProductResponse(Long id,
                               Boolean active,
                               String description,
                               Instant createdAt,
-                              Instant updatedAt) {
+                              Instant updatedAt) implements Serializable {
     public static ProductResponse empty(Long id) {
         return new ProductResponse(
                 id,

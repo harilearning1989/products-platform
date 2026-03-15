@@ -20,6 +20,11 @@ public class ProductRestController {
         this.productService = productService;
     }
 
+    @PostMapping
+    public ProductResponse create(@RequestBody ProductRequest request) {
+        return productService.create(request);
+    }
+
     @GetMapping("list")
     public List<ProductDto> getAllProducts() {
         return productService.getAllProducts();
@@ -28,11 +33,6 @@ public class ProductRestController {
     @GetMapping("/byId/{id}")
     public ProductDto getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
-    }
-
-    @PostMapping
-    public ProductResponse create(@RequestBody ProductRequest request) {
-        return productService.create(request);
     }
 
     @PutMapping("/{id}")

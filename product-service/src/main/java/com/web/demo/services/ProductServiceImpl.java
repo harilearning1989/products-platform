@@ -35,8 +35,8 @@ public class ProductServiceImpl implements ProductService{
 
     private List<ProductDto> products;
 
-    private ProductRepository repository;
-    private ProductEventProducer producer;
+    private final ProductRepository repository;
+    private final ProductEventProducer producer;
 
     public ProductServiceImpl(JsonFileReader jsonFileReader,
                               ProductRepository repository,
