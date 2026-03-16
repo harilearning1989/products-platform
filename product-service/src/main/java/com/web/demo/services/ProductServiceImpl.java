@@ -3,6 +3,7 @@ package com.web.demo.services;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.product.dtos.ProductRequest;
 import com.product.dtos.ProductResponse;
+import com.product.dtos.ProductSearchRequest;
 import com.product.exceptions.DuplicateResourceException;
 import com.product.exceptions.ProductNotFoundException;
 import com.product.exceptions.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import com.web.demo.producer.ProductEventProducer;
 import com.web.demo.reader.JsonFileReader;
 import com.web.demo.records.ProductDto;
 import com.web.demo.repos.ProductRepository;
+import com.web.demo.specification.ProductSpecification;
 import jakarta.annotation.PostConstruct;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -27,7 +29,7 @@ import java.util.Set;
 
 @Service
 @Transactional
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
 
     private static final String FILE_NAME = "products.json";
 
@@ -35,14 +37,14 @@ public class ProductServiceImpl implements ProductService{
 
     private List<ProductDto> products;
 
-    private final ProductRepository repository;
+    private final ProductRepository productRepository;
     private final ProductEventProducer producer;
 
     public ProductServiceImpl(JsonFileReader jsonFileReader,
-                              ProductRepository repository,
+                              ProductRepository productRepository,
                               ProductEventProducer producer) {
         this.jsonFileReader = jsonFileReader;
-        this.repository = repository;
+        this.productRepository = productRepository;
         this.producer = producer;
     }
 
@@ -50,7 +52,8 @@ public class ProductServiceImpl implements ProductService{
     public void loadProducts() {
         this.products = jsonFileReader.readListFromFile(
                 FILE_NAME,
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -60,8 +63,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    @Cacheable(value = "productById", key = "#id")
-    public ProductDto getProductById(Long id) {
+    public ProductDto getProductByIdJsonFile(Long id) {
         return products.stream()
                 .filter(c -> c.id().equals(id))
                 .findFirst()
@@ -72,11 +74,11 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @CachePut(value = "products", key = "#result.id")
     public ProductResponse create(ProductRequest request) {
-        if (repository.existsBySku(request.sku())) {
+        if (productRepository.existsBySku(request.sku())) {
             throw new DuplicateResourceException("SKU already exists");
         }
 
-        Product product = repository.save(Product.builder()
+        Product product = productRepository.save(Product.builder()
                 .sku(request.sku())
                 .name(request.name())
                 .brand(request.brand())
@@ -96,8 +98,7 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @CachePut(value = "products", key = "#id")
     public ProductResponse update(Long id, ProductRequest request) {
-
-        Product product = repository.findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
         product.setName(request.name());
@@ -112,8 +113,9 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional(readOnly = true)
-    public ProductResponse getById(Long id) {
-        return repository.findById(id)
+    @Cacheable(value = "products", key = "#id")
+    public ProductResponse getProductById(Long id) {
+        return productRepository.findById(id)
                 .map(this::mapToResponse)
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
@@ -121,17 +123,16 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @Transactional(readOnly = true)
     public Page<ProductResponse> getAll(int page, int size) {
-
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        return repository.findAll(pageable)
+        return productRepository.findAll(pageable)
                 .map(this::mapToResponse);
     }
 
     @Override
     @CacheEvict(value = "products", key = "#id")
     public void delete(Long id) {
-        Product product = repository.findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
         product.setActive(false); // soft delete
@@ -140,19 +141,27 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public List<ProductResponse> getProductsByIds(
             Set<Long> ids) {
-        return repository.findAllById(ids)
+        return productRepository.findAllById(ids)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
-    @CacheEvict(value="users", allEntries = true)
+    @Override
+    public List<ProductResponse> searchProducts(ProductSearchRequest productSearchRequest) {
+        return productRepository.findAll(ProductSpecification.search(productSearchRequest))
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @CacheEvict(value = "users", allEntries = true)
     public void refreshUsers() {
         // reload database
     }
 
-    @Cacheable(value="products", key="#category + ':' + #id")
-    public Product getProduct(String category, Long id){
+    @Cacheable(value = "products", key = "#category + ':' + #id")
+    public Product getProduct(String category, Long id) {
         return null;
     }
 

@@ -2,6 +2,7 @@ package com.web.demo.controls;
 
 import com.product.dtos.ProductRequest;
 import com.product.dtos.ProductResponse;
+import com.product.dtos.ProductSearchRequest;
 import com.web.demo.records.ProductDto;
 import com.web.demo.services.ProductService;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,12 @@ public class ProductRestController {
     }
 
     @GetMapping("/byId/{id}")
-    public ProductDto getProductById(@PathVariable Long id) {
+    public ProductDto getProductByIdJsonFile(@PathVariable Long id) {
+        return productService.getProductByIdJsonFile(id);
+    }
+
+    @GetMapping("/{id}")
+    public ProductResponse getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
 
@@ -41,9 +47,9 @@ public class ProductRestController {
         return productService.update(id, request);
     }
 
-    @GetMapping("/{id}")
-    public ProductResponse getById(@PathVariable Long id) {
-        return productService.getById(id);
+    @PostMapping("/search")
+    public List<ProductResponse> searchProducts(@RequestBody ProductSearchRequest productSearchRequest) {
+        return productService.searchProducts(productSearchRequest);
     }
 
     @GetMapping

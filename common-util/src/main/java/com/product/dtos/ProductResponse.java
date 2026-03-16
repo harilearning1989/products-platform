@@ -18,6 +18,21 @@ public record ProductResponse(Long id,
                               String description,
                               Instant createdAt,
                               Instant updatedAt) implements Serializable {
+    public static ProductResponse limit(Long id) {
+        return new ProductResponse(
+                id,
+                null,
+                "Product unavailable",
+                null,
+                null,
+                BigDecimal.ZERO,
+                null,
+                false,
+                "Fallback product - service unavailable",
+                null,
+                null
+        );
+    }
     public static ProductResponse empty(Long id) {
         return new ProductResponse(
                 id,

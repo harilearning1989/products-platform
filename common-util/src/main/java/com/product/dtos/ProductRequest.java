@@ -3,6 +3,7 @@ package com.product.dtos;
 import java.math.BigDecimal;
 
 public record ProductRequest(
+        Long productId,
         String sku,
         String name,
         String brand,
