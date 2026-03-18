@@ -21,9 +21,17 @@ login-service
 
 product-service → product_db
 
+inventory-service → inventory_db
+
 user-service → user_db
 
+order-service → order_db
+
 payment-service → payment_db
+
+payment-history-service → payment_history_db
+
+notification-service -> notification_db
 
 ==================================
 
@@ -84,3 +92,34 @@ Notification Service
 Response
 
 =======================================
+
+Databases
+
+CREATE USER product_db IDENTIFIED BY "products";
+GRANT CREATE SESSION TO product_db;
+GRANT DBA TO product_db;
+
+CREATE USER order_db IDENTIFIED BY "order";
+GRANT CREATE SESSION TO order_db;
+GRANT DBA TO order_db;
+
+CREATE USER inventory_db IDENTIFIED BY "inventory";
+GRANT CREATE SESSION TO inventory_db;
+GRANT DBA TO inventory_db;
+
+CREATE USER user_db IDENTIFIED BY "users";
+GRANT CREATE SESSION TO user_db;
+GRANT DBA TO user_db;
+
+CREATE USER payment_db IDENTIFIED BY "payment";
+GRANT CREATE SESSION TO payment_db;
+GRANT DBA TO payment_db;
+
+CREATE USER payment_history_db IDENTIFIED BY "history";
+GRANT CREATE SESSION TO payment_history_db;
+GRANT DBA TO payment_history_db;
+
+CREATE USER notification_db IDENTIFIED BY "notification";
+GRANT CREATE SESSION TO notification_db;
+GRANT DBA TO notification_db;
+

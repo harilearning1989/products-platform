@@ -1,0 +1,9 @@
+docker build -t eureka-server:101 .
+kubectl create namespace products-platform
+helm install eureka ./K8S -n products-platform
+helm uninstall eureka -n products-platform
+
+kubectl proxy
+
+kubectl get pods -n products-platform
+kubectl get svc -n products-platform
